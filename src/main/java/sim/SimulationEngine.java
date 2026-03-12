@@ -5,13 +5,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Supplier;
+import java.util.random.RandomGenerator;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
 import model.Agent;
 import model.AgentFactory;
+import model.AgentProvider;
 import model.MapLayout;
 import util.Vec2;
 
@@ -21,6 +25,8 @@ import util.Vec2;
  */
 public class SimulationEngine {
     private final World world;
+    private final AgentProvider agentProvider;
+    private final Supplier<RandomGenerator> randomSupplier;
     private long tickCount;
     private boolean running;
     private double speedMultiplier = 1.0;
@@ -28,7 +34,13 @@ public class SimulationEngine {
     private final Set<String> updatingEnabledTypes = new HashSet<>();
 
     public SimulationEngine(World world) {
-        this.world = world;
+        this(world, AgentFactory.defaultFactory(), ThreadLocalRandom::current);
+    }
+
+    public SimulationEngine(World world, AgentProvider agentProvider, Supplier<RandomGenerator> randomSupplier) {
+        this.world = Objects.requireNonNull(world, "world");
+        this.agentProvider = Objects.requireNonNull(agentProvider, "agentProvider");
+        this.randomSupplier = Objects.requireNonNull(randomSupplier, "randomSupplier");
         updatingEnabledTypes.addAll(List.of("Car", "Bus", "Emergency", "Pedestrian", "Boat", "Aircraft"));
         rebuildTimeline();
     }
@@ -92,13 +104,13 @@ public class SimulationEngine {
     }
 
     public void addRandomAgents(int count) {
-        ThreadLocalRandom random = ThreadLocalRandom.current();
+        RandomGenerator random = randomSupplier.get();
         String[] types = {"Car", "Bus", "Emergency", "Pedestrian", "Boat", "Aircraft"};
         for (int i = 0; i < count; i++) {
             String type = types[random.nextInt(types.length)];
             Vec2 pos = new Vec2(random.nextDouble(-250, 250), random.nextDouble(-200, 220));
             Vec2 vel = new Vec2(random.nextDouble(-70, 70), random.nextDouble(-70, 70));
-            world.addAgent(AgentFactory.create(type, pos, vel));
+            world.addAgent(agentProvider.create(type, pos, vel));
         }
     }
 

@@ -34,9 +34,9 @@ public class AirportLayout implements MapLayout {
     @Override
     public void seed(World world) {
         world.clearAgents();
-        world.addAgent(AgentFactory.create("Aircraft", new Vec2(-260, -155), new Vec2(95, 0)));
-        world.addAgent(AgentFactory.create("Aircraft", new Vec2(250, -140), new Vec2(-85, 0)));
-        world.addAgent(AgentFactory.create("Bus", new Vec2(-180, 70), new Vec2(36, 0)));
-        world.addAgent(AgentFactory.create("Pedestrian", new Vec2(100, 80), new Vec2(-9, 6)));
+        world.addAgent(AgentFactory.defaultFactory().create("Aircraft", new Vec2(-260, -155), new Vec2(95, 0)));
+        world.addAgent(AgentFactory.defaultFactory().create("Aircraft", new Vec2(250, -140), new Vec2(-85, 0)));
+        world.addAgent(AgentFactory.defaultFactory().create("Bus", new Vec2(-180, 70), new Vec2(36, 0)));
+        world.addAgent(AgentFactory.defaultFactory().create("Pedestrian", new Vec2(100, 80), new Vec2(-9, 6)));
     }
 }

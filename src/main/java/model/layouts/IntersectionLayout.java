@@ -50,11 +50,11 @@ public class IntersectionLayout implements MapLayout {
     @Override
     public void seed(World world) {
         world.clearAgents();
-        world.addAgent(AgentFactory.create("Car", new Vec2(-160, -12), new Vec2(58, 0)));
-        world.addAgent(AgentFactory.create("Car", new Vec2(160, 12), new Vec2(-56, 0)));
-        world.addAgent(AgentFactory.create("Bus", new Vec2(-100, 16), new Vec2(40, 0)));
-        world.addAgent(AgentFactory.create("Emergency", new Vec2(12, -160), new Vec2(0, 78)));
-        world.addAgent(AgentFactory.create("Pedestrian", new Vec2(-80, -80), new Vec2(10, 8)));
-        world.addAgent(AgentFactory.create("Pedestrian", new Vec2(90, 75), new Vec2(-8, -11)));
+        world.addAgent(AgentFactory.defaultFactory().create("Car", new Vec2(-160, -12), new Vec2(58, 0)));
+        world.addAgent(AgentFactory.defaultFactory().create("Car", new Vec2(160, 12), new Vec2(-56, 0)));
+        world.addAgent(AgentFactory.defaultFactory().create("Bus", new Vec2(-100, 16), new Vec2(40, 0)));
+        world.addAgent(AgentFactory.defaultFactory().create("Emergency", new Vec2(12, -160), new Vec2(0, 78)));
+        world.addAgent(AgentFactory.defaultFactory().create("Pedestrian", new Vec2(-80, -80), new Vec2(10, 8)));
+        world.addAgent(AgentFactory.defaultFactory().create("Pedestrian", new Vec2(90, 75), new Vec2(-8, -11)));
     }
 }

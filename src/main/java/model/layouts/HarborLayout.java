@@ -32,9 +32,9 @@ public class HarborLayout implements MapLayout {
     @Override
     public void seed(World world) {
         world.clearAgents();
-        world.addAgent(AgentFactory.create("Boat", new Vec2(-220, 120), new Vec2(35, 0)));
-        world.addAgent(AgentFactory.create("Boat", new Vec2(200, 180), new Vec2(-28, 0)));
-        world.addAgent(AgentFactory.create("Pedestrian", new Vec2(-140, -140), new Vec2(7, 5)));
-        world.addAgent(AgentFactory.create("Car", new Vec2(-180, -130), new Vec2(45, 0)));
+        world.addAgent(AgentFactory.defaultFactory().create("Boat", new Vec2(-220, 120), new Vec2(35, 0)));
+        world.addAgent(AgentFactory.defaultFactory().create("Boat", new Vec2(200, 180), new Vec2(-28, 0)));
+        world.addAgent(AgentFactory.defaultFactory().create("Pedestrian", new Vec2(-140, -140), new Vec2(7, 5)));
+        world.addAgent(AgentFactory.defaultFactory().create("Car", new Vec2(-180, -130), new Vec2(45, 0)));
     }
 }

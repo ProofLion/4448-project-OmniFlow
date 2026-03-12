@@ -2,7 +2,6 @@ package model;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiFunction;
 import model.agenttypes.AircraftAgent;
 import model.agenttypes.BoatAgent;
 import model.agenttypes.BusAgent;
@@ -15,15 +14,16 @@ import util.Vec2;
 /**
  * Registry-based factory avoids a type switch and makes extension straightforward.
  */
-public final class AgentFactory {
+public final class AgentFactory implements AgentProvider {
     @FunctionalInterface
     public interface AgentCreator {
         Agent create(long id, Vec2 position, Vec2 velocity);
     }
 
-    private static final Map<String, AgentCreator> CREATORS = new HashMap<>();
+    private static final AgentFactory DEFAULT = new AgentFactory();
+    private final Map<String, AgentCreator> creators = new HashMap<>();
 
-    static {
+    public AgentFactory() {
         register("Car", CarAgent::new);
         register("Bus", BusAgent::new);
         register("Emergency", EmergencyAgent::new);
@@ -32,23 +32,26 @@ public final class AgentFactory {
         register("Aircraft", AircraftAgent::new);
     }
 
-    private AgentFactory() {
+    public static AgentFactory defaultFactory() {
+        return DEFAULT;
     }
 
-    public static void register(String typeName, AgentCreator creator) {
-        CREATORS.put(typeName, creator);
+    public void register(String typeName, AgentCreator creator) {
+        creators.put(typeName, creator);
     }
 
-    public static Agent create(String typeName, Vec2 position, Vec2 velocity) {
-        AgentCreator creator = CREATORS.get(typeName);
+    @Override
+    public Agent create(String typeName, Vec2 position, Vec2 velocity) {
+        AgentCreator creator = creators.get(typeName);
         if (creator == null) {
             throw new IllegalArgumentException("Unknown agent type: " + typeName);
         }
         return creator.create(Ids.next(), position, velocity);
     }
 
-    public static Agent createWithId(String typeName, long id, Vec2 position, Vec2 velocity) {
-        AgentCreator creator = CREATORS.get(typeName);
+    @Override
+    public Agent createWithId(String typeName, long id, Vec2 position, Vec2 velocity) {
+        AgentCreator creator = creators.get(typeName);
         if (creator == null) {
             throw new IllegalArgumentException("Unknown agent type: " + typeName);
         }

@@ -78,7 +78,7 @@ public final class LayoutStore {
                     double y = Double.parseDouble(parts[3]);
                     double vx = Double.parseDouble(parts[4]);
                     double vy = Double.parseDouble(parts[5]);
-                    agents.add(AgentFactory.createWithId(type, id, new Vec2(x, y), new Vec2(vx, vy)));
+                    agents.add(AgentFactory.defaultFactory().createWithId(type, id, new Vec2(x, y), new Vec2(vx, vy)));
                 }
             }
         }

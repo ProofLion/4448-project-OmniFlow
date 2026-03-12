@@ -20,6 +20,13 @@ OmniFlow is a Java 17 + JavaFX scaffold for a 2D simulation UI. It is intentiona
 - `src/main/java/persistence`
 - `src/main/java/util`
 - `src/test/java`
+- `DESIGN.md`
+- `REQUIREMENTS.md`
+
+## Assignment Rubric Docs
+
+- Design patterns and architecture notes: `DESIGN.md`
+- Rubric requirements trace: `REQUIREMENTS.md`
 
 ## What Is Included
 
