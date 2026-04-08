@@ -110,6 +110,10 @@ For the class project, the main OO design work is in the Java model and simulati
 These are the main follow-up tasks that still make sense for my teammate:
 
 - Tweak movement constants so the behavior better matches common sense and any tests they want to write.
+- Downtown itersection map, Fix stop light and pedestrian walking timing, ensure cars, bikes and busses stop at red lights, and if light is orange then they slow down to stop, ensuring they are not running reds
+- On school map vehicles stop in middle of intersection if light turned red
+- Make clear lines for intersections to better see where vehicles should stop
+- Fix emergency corridor map in general or remove
 - Adjust stop-line distances, pedestrian timing, and bus-stop pause lengths if some layouts feel awkward.
 - Add or refine tests for edge cases, especially around layout-specific traffic behavior.
 - Decide whether to fully delete the unused legacy boat/aircraft files or just leave them as legacy code.
