@@ -1,6 +1,8 @@
 # OmniFlow
 
-OmniFlow is a Java 17 + JavaFX scaffold for a 2D simulation UI. It is intentionally UI-first so you can plug in simulation and backend logic later.
+OmniFlow is a Java 17 city traffic simulator built for our OOAD class final project. The simulator models street traffic in a small city environment using cars, buses, emergency vehicles, bikes, and pedestrians. Users can switch between city layouts, start or pause the simulation, adjust speed, add random agents, and save or load a scene.
+
+The Java side is intentionally student-level and readable. The goal is to show OO design, polymorphism, dependency injection, and design patterns clearly rather than build a highly realistic traffic engine.
 
 ## Run
 
@@ -9,53 +11,112 @@ OmniFlow is a Java 17 + JavaFX scaffold for a 2D simulation UI. It is intentiona
 
 ## Test
 
-- `./gradlew test`
+- Windows: `./gradlew.bat test --gradle-user-home .gradle-local`
+- macOS/Linux: `./gradlew test --gradle-user-home .gradle-local`
+
+Using a local Gradle home avoids permission issues on some machines.
 
 ## Project Structure
 
-- `src/main/java/app`
-- `src/main/java/ui`
-- `src/main/java/sim`
-- `src/main/java/model`
-- `src/main/java/persistence`
-- `src/main/java/util`
-- `src/test/java`
-- `DESIGN.md`
-- `REQUIREMENTS.md`
+- `src/main/java/app`: JavaFX application startup and controller wiring
+- `src/main/java/ui`: JavaFX view classes and canvas rendering
+- `src/main/java/sim`: world state, camera, selection model, simulation engine
+- `src/main/java/model`: agent abstractions, factory, layout strategy contract
+- `src/main/java/model/agenttypes`: city traffic agent implementations
+- `src/main/java/model/layouts`: city layout strategies
+- `src/main/java/persistence`: text-based save/load support
+- `src/test/java`: unit tests
+- `DESIGN.md`: design pattern explanation
+- `REQUIREMENTS.md`: rubric trace
 
-## Assignment Rubric Docs
+## Design Patterns Used
 
-- Design patterns and architecture notes: `DESIGN.md`
-- Rubric requirements trace: `REQUIREMENTS.md`
+### 1. Factory Pattern
 
-## What Is Included
+- `AgentFactory` creates agents from type names like `Car`, `Bus`, `Bike`, and `EmergencyVehicle`.
+- The rest of the code requests an `Agent` through the factory instead of directly constructing concrete classes.
+- This keeps creation logic in one place and avoids a large switch statement.
 
-- Canvas-based viewport with pan/zoom and agent selection.
-- Separate render loop (`AnimationTimer`) and simulation tick loop (`Timeline`).
-- Control panel with speed, start/pause, step, filters, map selection, add/clear agents, save/load.
-- Text-based persistence format (no external JSON libs).
-- Placeholder simulation behaviors for multiple agent types and map layouts.
+### 2. Strategy Pattern
 
-## Backend Integration Points
+- `MapLayout` is the strategy interface for city environments.
+- The active strategies are:
+  - `DowntownIntersectionLayout`
+  - `SchoolZoneLayout`
+  - `EmergencyCorridorLayout`
+- Each layout decides how the map is drawn, which agents are seeded, and how simple traffic rules work.
 
-- Implement richer movement, routing, and policy logic in `sim/SimulationEngine.java` and model classes.
-- Integrate traffic signals and interaction rules by extending `model/MapLayout.java` and concrete layouts.
-- Replace text persistence if needed in `persistence/LayoutStore.java` while keeping DTO boundaries.
+### 3. Observer / MVC
 
-## Pan / Zoom / Selection Notes
+- The JavaFX UI follows an MVC-style split:
+  - model/sim classes hold state
+  - `OmniFlowController` wires user actions to the model
+  - UI classes render and display information
+- JavaFX listeners update the simulation when controls change and update the side panel when selection changes.
 
-- Pan: drag with primary mouse button.
-- Zoom: mouse wheel zooms around cursor using camera transform math.
-- Selection: click an agent to select; details appear in the right panel.
+### 4. Template Method
 
-## Add a New Agent Type
+- `BaseAgent` owns the shared update flow for agents.
+- Subclasses override only the small behavior hooks they need, such as speed multipliers, red-light stopping, and bus-stop pauses.
+- This keeps the common movement code in one place while still allowing type-specific behavior.
 
-1. Add class in `model/agenttypes` extending `BaseAgent`.
-2. Register in `model/AgentFactory.java`.
-3. Add a checkbox in `ui/ControlPanel.java` and default visibility in controller.
+## JavaFX Implementation
 
-## Add a New Layout
+The JavaFX presentation layer in this project was AI-generated / heavily AI-assisted. That includes the overall JavaFX layout, canvas rendering approach, control panel wiring patterns, and most of the visual polish in the city scenes.
 
-1. Add class in `model/layouts` implementing `MapLayout`.
-2. Register in `app/OmniFlowController.java` map registry.
-3. Add drawing/spawn conventions in that layout implementation.
+That JavaFX code is mainly responsible for:
+
+- rendering the city layouts and agents
+- handling pan, zoom, and selection
+- providing buttons, sliders, filters, and layout selection
+- showing simulation stats and selected-agent details
+
+For the class project, the main OO design work is in the Java model and simulation architecture, especially:
+
+- `Agent` and `BaseAgent`
+- `AgentFactory`
+- `MapLayout` and the concrete city layouts
+- `SimulationEngine`
+
+## Current Features
+
+- City-only traffic simulation with:
+  - cars
+  - buses
+  - emergency vehicles
+  - bikes
+  - pedestrians
+- Three city layouts with different visual style and traffic behavior
+- Simple traffic-light and crosswalk rules
+- Bus-stop pauses
+- Start, pause, step, and speed controls
+- Type filters
+- Agent selection with details panel
+- Save/load through a simple text file format
+
+## Controls
+
+- Pan: drag with the primary mouse button
+- Zoom: use the mouse wheel
+- Select agent: click an agent in the viewport
+- Start/Pause: toggle the simulation loop
+- Step: advance one simulation tick
+- Speed slider: change the tick rate
+- Add Random Agents: populate the map with more city agents
+- Save / Load: persist the current scene to a text file
+
+## What Is Left / Teammate Handoff
+
+These are the main follow-up tasks that still make sense for my teammate:
+
+- Tweak movement constants so the behavior better matches common sense and any tests they want to write.
+- Adjust stop-line distances, pedestrian timing, and bus-stop pause lengths if some layouts feel awkward.
+- Add or refine tests for edge cases, especially around layout-specific traffic behavior.
+- Decide whether to fully delete the unused legacy boat/aircraft files or just leave them as legacy code.
+- Polish demo notes for the final presentation.
+- If needed, make small balancing changes so agent speeds feel more believable on screen.
+
+## Notes
+
+- The project was intentionally simplified from a broader multimodal idea into a clearer city traffic simulator.
+- The Java logic favors readability over realism so it stays explainable at class-project level.

@@ -1,49 +1,84 @@
 # Assignment Requirements Trace
 
-This trace maps each rubric requirement to concrete code, tests, and documentation in this repository.
+This file maps the class rubric to concrete code and documents where each requirement is satisfied in the final city traffic simulator.
 
-## 1. Identify 3+ design patterns and explain usage
+## 1. Identify at least 4 design patterns
 
 - Satisfied by: `DESIGN.md`
 - Evidence:
   - Factory: `src/main/java/model/AgentFactory.java`
   - Strategy: `src/main/java/model/MapLayout.java` and `src/main/java/model/layouts/*`
-  - MVC/Observer: `src/main/java/app/OmniFlowController.java`, `src/main/java/sim/SelectionModel.java`, `src/main/java/ui/*`
+  - Observer / MVC: `src/main/java/app/OmniFlowController.java`, `src/main/java/sim/SelectionModel.java`, `src/main/java/ui/*`
+  - Template Method: `src/main/java/model/BaseAgent.java`
 
-## 2. Foundational classes/interfaces have real logic and clear responsibilities
+## 2. Foundational classes and interfaces have real logic
 
-- Satisfied by:
-  - `src/main/java/model/Agent.java`: core simulation contract and hit-test default behavior.
-  - `src/main/java/model/BaseAgent.java`: shared integration/bounds logic and common state.
-  - `src/main/java/model/AgentFactory.java`: registry-backed creation logic, id handling integration.
-  - `src/main/java/sim/SimulationEngine.java`: tick loop, speed control, type filtering, layout switching.
-  - `src/main/java/sim/World.java`: active-agent storage, selection hit-test, world wrapping helper.
+- `src/main/java/model/Agent.java`
+  - defines the core simulation contract used throughout the program
+- `src/main/java/model/BaseAgent.java`
+  - contains the shared movement/update algorithm and route handling
+- `src/main/java/model/AgentFactory.java`
+  - handles factory-based agent creation
+- `src/main/java/model/MapLayout.java`
+  - defines the layout strategy contract for drawing and traffic rules
+- `src/main/java/sim/SimulationEngine.java`
+  - advances the simulation, applies filters, changes layouts, and counts agents
+- `src/main/java/sim/World.java`
+  - stores the active layout, active agents, and current tick state
 
-## 3. Demonstrate OO principles
+## 3. OO principles are demonstrated
 
-- Coding to abstractions:
-  - `Agent` interface used throughout `World`/`SimulationEngine` (`List<Agent>`, `Agent.update(...)`).
-  - `MapLayout` interface used by controller and engine without depending on concrete layouts.
-  - `AgentProvider` abstraction introduced in `src/main/java/model/AgentProvider.java`.
-- Polymorphism:
-  - Different subclasses (`CarAgent`, `BusAgent`, `BoatAgent`, etc.) are used through `Agent`.
-  - `SimulationEngine.tickOnce()` calls `agent.update(world, dt)` polymorphically.
-  - Test evidence: `src/test/java/model/AgentFactoryTest.java` (`polymorphicUpdateWorksThroughAgentAbstraction`).
-- Explicit dependency injection:
-  - `SimulationEngine` constructor accepts injected `AgentProvider` and random-source `Supplier<RandomGenerator>`:
-    - `src/main/java/sim/SimulationEngine.java`
-  - Default constructor delegates to production dependencies, preserving existing behavior.
+### Coding to abstractions
 
-## 4. Add at least 5 meaningful unit tests
+- `SimulationEngine` works with `AgentProvider` and `MapLayout` abstractions.
+- `World` stores `List<Agent>` rather than concrete subclasses.
+- The controller switches layouts through `MapLayout` rather than direct concrete coupling.
 
-- Existing tests:
-  - `src/test/java/sim/Camera2DTest.java` (2 tests)
-- Added tests:
-  - `src/test/java/sim/SimulationEngineTest.java` (5 tests)
-  - `src/test/java/model/AgentFactoryTest.java` (3 tests)
-  - `src/test/java/persistence/LayoutStoreTest.java` (2 tests)
-- Total tests: 12
+### Polymorphism
 
-## 5. Add a requirements trace section/file
+- `SimulationEngine` updates every agent through `Agent.update(world, dt)`.
+- Different subclasses provide different movement behavior:
+  - `CarAgent`
+  - `BusAgent`
+  - `EmergencyVehicleAgent`
+  - `BikeAgent`
+  - `PedestrianAgent`
+- Test reference: `src/test/java/model/AgentFactoryTest.java`
 
-- Satisfied by: this file (`REQUIREMENTS.md`)
+### Dependency injection
+
+- `SimulationEngine` supports constructor injection for:
+  - `World`
+  - `AgentProvider`
+  - `Supplier<RandomGenerator>`
+- This keeps the engine easier to test and avoids hard-coding all dependencies inside the class.
+
+## 4. UI or persisted state requirement
+
+- UI requirement is satisfied through the JavaFX application:
+  - `src/main/java/app/*`
+  - `src/main/java/ui/*`
+- Persisted state requirement is also satisfied through:
+  - `src/main/java/persistence/LayoutStore.java`
+
+## 5. Meaningful test cases
+
+- `src/test/java/model/AgentFactoryTest.java`
+  - verifies factory creation
+  - verifies polymorphic agent updates
+  - verifies helpful errors for unknown types
+- `src/test/java/sim/SimulationEngineTest.java`
+  - verifies stepping
+  - verifies type filtering
+  - verifies vehicle stopping at red lights
+  - verifies emergency vehicle behavior
+  - verifies layout switching
+- `src/test/java/persistence/LayoutStoreTest.java`
+  - verifies save/load round-trip
+  - verifies fallback behavior for unknown layout names
+- `src/test/java/sim/Camera2DTest.java`
+  - verifies camera coordinate conversions and zoom clamping
+
+## 6. This requirements trace file exists
+
+- Satisfied by: `REQUIREMENTS.md`
