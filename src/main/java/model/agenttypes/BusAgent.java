@@ -6,6 +6,9 @@ import sim.World;
 import util.Vec2;
 
 public class BusAgent extends BaseAgent {
+    private int stopTicksRemaining;
+    private int stopCooldownTicks;
+
     public BusAgent(long id, Vec2 position, Vec2 velocity) {
         super(id, position, velocity);
     }
@@ -26,8 +29,35 @@ public class BusAgent extends BaseAgent {
     }
 
     @Override
-    public void update(World world, double dtSeconds) {
-        integrate(dtSeconds);
-        world.wrap(getPosition(), -220, -130, 220, 130);
+    public String getShortLabel() {
+        return "Bus";
+    }
+
+    @Override
+    protected void beforeUpdate(World world) {
+        if (stopCooldownTicks > 0) {
+            stopCooldownTicks--;
+        }
+        if (stopTicksRemaining > 0) {
+            stopTicksRemaining--;
+        }
+    }
+
+    @Override
+    protected double getSpeedMultiplier(World world) {
+        return 0.85;
+    }
+
+    @Override
+    protected boolean shouldPause(World world) {
+        return stopTicksRemaining > 0 || world.getLayout().shouldVehicleYield(this, world.getTickCount());
+    }
+
+    @Override
+    protected void afterMove(World world) {
+        if (stopCooldownTicks == 0 && world.getLayout().isBusStop(this)) {
+            stopTicksRemaining = 22;
+            stopCooldownTicks = 120;
+        }
     }
 }

@@ -21,8 +21,12 @@ public class EmergencyAgent extends BaseAgent {
     }
 
     @Override
-    public void update(World world, double dtSeconds) {
-        integrate(dtSeconds * 1.25);
-        world.wrap(getPosition(), -240, -150, 240, 150);
+    public String getShortLabel() {
+        return "EV";
+    }
+
+    @Override
+    protected double getSpeedMultiplier(World world) {
+        return 1.25;
     }
 }

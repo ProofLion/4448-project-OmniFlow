@@ -21,8 +21,12 @@ public class CarAgent extends BaseAgent {
     }
 
     @Override
-    public void update(World world, double dtSeconds) {
-        integrate(dtSeconds);
-        world.wrap(getPosition(), -200, -120, 200, 120);
+    public String getShortLabel() {
+        return "C" + getId();
+    }
+
+    @Override
+    protected boolean shouldPause(World world) {
+        return world.getLayout().shouldVehicleYield(this, world.getTickCount());
     }
 }

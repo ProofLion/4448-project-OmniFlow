@@ -9,6 +9,10 @@ import util.Vec2;
  */
 public abstract class BaseAgent implements Agent {
     private final long id;
+    private final TravelAxis travelAxis;
+    private final Vec2 heading;
+    private final double cruiseSpeed;
+    private final double routeAnchor;
     private Vec2 position;
     private Vec2 velocity;
 
@@ -16,6 +20,10 @@ public abstract class BaseAgent implements Agent {
         this.id = id;
         this.position = position;
         this.velocity = velocity;
+        this.travelAxis = TravelAxis.fromVelocity(velocity);
+        this.heading = normalize(velocity);
+        this.cruiseSpeed = magnitude(velocity);
+        this.routeAnchor = travelAxis == TravelAxis.HORIZONTAL ? position.y : position.x;
     }
 
     @Override
@@ -47,17 +55,46 @@ public abstract class BaseAgent implements Agent {
         position = position.add(velocity.scale(dtSeconds));
     }
 
-    protected void bounceWithin(double minX, double minY, double maxX, double maxY) {
-        if (position.x < minX || position.x > maxX) {
-            velocity = new Vec2(-velocity.x, velocity.y);
+    protected final TravelAxis getTravelAxis() {
+        return travelAxis;
+    }
+
+    protected final Vec2 getHeading() {
+        return heading;
+    }
+
+    protected final double getCruiseSpeed() {
+        return cruiseSpeed;
+    }
+
+    protected final double getRouteAnchor() {
+        return routeAnchor;
+    }
+
+    protected double getSpeedMultiplier(World world) {
+        return 1.0;
+    }
+
+    protected boolean shouldPause(World world) {
+        return false;
+    }
+
+    protected void beforeUpdate(World world) {
+    }
+
+    protected void afterMove(World world) {
+    }
+
+    protected Vec2 createVelocity(double speedMultiplier) {
+        return heading.scale(cruiseSpeed * speedMultiplier);
+    }
+
+    protected final void lockToRoute() {
+        if (travelAxis == TravelAxis.HORIZONTAL) {
+            position = new Vec2(position.x, routeAnchor);
+        } else {
+            position = new Vec2(routeAnchor, position.y);
         }
-        if (position.y < minY || position.y > maxY) {
-            velocity = new Vec2(velocity.x, -velocity.y);
-        }
-        position = new Vec2(
-            Math.max(minX, Math.min(maxX, position.x)),
-            Math.max(minY, Math.min(maxY, position.y))
-        );
     }
 
     @Override
@@ -77,5 +114,31 @@ public abstract class BaseAgent implements Agent {
     public abstract Color getColor();
 
     @Override
-    public abstract void update(World world, double dtSeconds);
+    public final void update(World world, double dtSeconds) {
+        beforeUpdate(world);
+
+        if (shouldPause(world)) {
+            setVelocity(new Vec2(0, 0));
+            return;
+        }
+
+        setVelocity(createVelocity(getSpeedMultiplier(world)));
+        integrate(dtSeconds);
+        lockToRoute();
+        afterMove(world);
+        world.getLayout().keepAgentInBounds(this);
+        lockToRoute();
+    }
+
+    private static double magnitude(Vec2 vector) {
+        return Math.hypot(vector.x, vector.y);
+    }
+
+    private static Vec2 normalize(Vec2 vector) {
+        double length = magnitude(vector);
+        if (length == 0) {
+            return new Vec2(1, 0);
+        }
+        return new Vec2(vector.x / length, vector.y / length);
+    }
 }

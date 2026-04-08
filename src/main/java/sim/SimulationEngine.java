@@ -41,7 +41,8 @@ public class SimulationEngine {
         this.world = Objects.requireNonNull(world, "world");
         this.agentProvider = Objects.requireNonNull(agentProvider, "agentProvider");
         this.randomSupplier = Objects.requireNonNull(randomSupplier, "randomSupplier");
-        updatingEnabledTypes.addAll(List.of("Car", "Bus", "Emergency", "Pedestrian", "Boat", "Aircraft"));
+        updatingEnabledTypes.addAll(List.of("Car", "Bus", "EmergencyVehicle", "Bike", "Pedestrian"));
+        world.setTickCount(0);
         rebuildTimeline();
     }
 
@@ -101,15 +102,36 @@ public class SimulationEngine {
         world.setLayout(layout);
         layout.seed(world);
         tickCount = 0;
+        world.setTickCount(0);
     }
 
     public void addRandomAgents(int count) {
         RandomGenerator random = randomSupplier.get();
-        String[] types = {"Car", "Bus", "Emergency", "Pedestrian", "Boat", "Aircraft"};
+        String[] types = {"Car", "Bus", "EmergencyVehicle", "Bike", "Pedestrian"};
         for (int i = 0; i < count; i++) {
             String type = types[random.nextInt(types.length)];
-            Vec2 pos = new Vec2(random.nextDouble(-250, 250), random.nextDouble(-200, 220));
-            Vec2 vel = new Vec2(random.nextDouble(-70, 70), random.nextDouble(-70, 70));
+            Vec2 pos;
+            Vec2 vel;
+            if (random.nextBoolean()) {
+                double laneY = switch (random.nextInt(4)) {
+                    case 0 -> -52;
+                    case 1 -> -18;
+                    case 2 -> 18;
+                    default -> 42;
+                };
+                pos = new Vec2(random.nextBoolean() ? -320 : 320, laneY);
+                double direction = pos.x < 0 ? 1 : -1;
+                vel = new Vec2(direction * random.nextDouble(32, 76), 0);
+            } else {
+                double laneX = switch (random.nextInt(3)) {
+                    case 0 -> -42;
+                    case 1 -> 0;
+                    default -> 42;
+                };
+                pos = new Vec2(laneX, random.nextBoolean() ? -220 : 220);
+                double direction = pos.y < 0 ? 1 : -1;
+                vel = new Vec2(0, direction * random.nextDouble(20, 64));
+            }
             world.addAgent(agentProvider.create(type, pos, vel));
         }
     }
@@ -124,6 +146,7 @@ public class SimulationEngine {
 
     private void tickOnce() {
         double dt = 1.0 / 30.0;
+        world.setTickCount(tickCount);
         List<Agent> agents = new ArrayList<>(world.getAgents());
         for (Agent agent : agents) {
             if (updatingEnabledTypes.contains(agent.getTypeName())) {
@@ -131,6 +154,7 @@ public class SimulationEngine {
             }
         }
         tickCount++;
+        world.setTickCount(tickCount);
     }
 
     private void rebuildTimeline() {

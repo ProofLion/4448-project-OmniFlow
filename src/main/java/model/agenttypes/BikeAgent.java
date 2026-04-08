@@ -5,38 +5,38 @@ import model.BaseAgent;
 import sim.World;
 import util.Vec2;
 
-public class PedestrianAgent extends BaseAgent {
-    public PedestrianAgent(long id, Vec2 position, Vec2 velocity) {
+public class BikeAgent extends BaseAgent {
+    public BikeAgent(long id, Vec2 position, Vec2 velocity) {
         super(id, position, velocity);
     }
 
     @Override
     public String getTypeName() {
-        return "Pedestrian";
+        return "Bike";
     }
 
     @Override
     public Color getColor() {
-        return Color.FORESTGREEN;
+        return Color.web("#2AA876");
     }
 
     @Override
     public double getRenderRadius() {
-        return 6.0;
+        return 7.0;
     }
 
     @Override
     public String getShortLabel() {
-        return "P" + getId();
+        return "Bk";
     }
 
     @Override
     protected double getSpeedMultiplier(World world) {
-        return 0.55;
+        return 0.65;
     }
 
     @Override
     protected boolean shouldPause(World world) {
-        return world.getLayout().shouldPedestrianYield(this, world.getTickCount());
+        return world.getLayout().shouldVehicleYield(this, world.getTickCount());
     }
 }

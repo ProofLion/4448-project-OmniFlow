@@ -12,6 +12,7 @@ import util.Vec2;
  */
 public class World {
     private MapLayout layout;
+    private long tickCount;
     private final List<Agent> agents = new ArrayList<>();
 
     public World(MapLayout layout) {
@@ -24,6 +25,14 @@ public class World {
 
     public void setLayout(MapLayout layout) {
         this.layout = layout;
+    }
+
+    public long getTickCount() {
+        return tickCount;
+    }
+
+    public void setTickCount(long tickCount) {
+        this.tickCount = tickCount;
     }
 
     public List<Agent> getAgents() {
@@ -53,17 +62,4 @@ public class World {
         return null;
     }
 
-    public void wrap(Vec2 position, double minX, double minY, double maxX, double maxY) {
-        if (position.x < minX) {
-            position.x = maxX;
-        } else if (position.x > maxX) {
-            position.x = minX;
-        }
-
-        if (position.y < minY) {
-            position.y = maxY;
-        } else if (position.y > maxY) {
-            position.y = minY;
-        }
-    }
 }

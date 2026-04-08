@@ -31,8 +31,7 @@ public class AircraftAgent extends BaseAgent {
     }
 
     @Override
-    public void update(World world, double dtSeconds) {
-        integrate(dtSeconds);
-        world.wrap(getPosition(), -300, -220, 300, -120);
+    protected double getSpeedMultiplier(World world) {
+        return 1.4;
     }
 }

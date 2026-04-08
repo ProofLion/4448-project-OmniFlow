@@ -5,28 +5,28 @@ import model.BaseAgent;
 import sim.World;
 import util.Vec2;
 
-public class BoatAgent extends BaseAgent {
-    public BoatAgent(long id, Vec2 position, Vec2 velocity) {
+public class EmergencyVehicleAgent extends BaseAgent {
+    public EmergencyVehicleAgent(long id, Vec2 position, Vec2 velocity) {
         super(id, position, velocity);
     }
 
     @Override
     public String getTypeName() {
-        return "Boat";
+        return "EmergencyVehicle";
     }
 
     @Override
     public Color getColor() {
-        return Color.DEEPSKYBLUE;
+        return Color.CRIMSON;
     }
 
     @Override
     public String getShortLabel() {
-        return "Bt";
+        return "EV";
     }
 
     @Override
     protected double getSpeedMultiplier(World world) {
-        return 0.9;
+        return 1.25;
     }
 }

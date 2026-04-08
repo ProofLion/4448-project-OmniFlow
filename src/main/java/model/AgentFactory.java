@@ -2,11 +2,10 @@ package model;
 
 import java.util.HashMap;
 import java.util.Map;
-import model.agenttypes.AircraftAgent;
-import model.agenttypes.BoatAgent;
+import model.agenttypes.BikeAgent;
 import model.agenttypes.BusAgent;
 import model.agenttypes.CarAgent;
-import model.agenttypes.EmergencyAgent;
+import model.agenttypes.EmergencyVehicleAgent;
 import model.agenttypes.PedestrianAgent;
 import util.Ids;
 import util.Vec2;
@@ -26,10 +25,9 @@ public final class AgentFactory implements AgentProvider {
     public AgentFactory() {
         register("Car", CarAgent::new);
         register("Bus", BusAgent::new);
-        register("Emergency", EmergencyAgent::new);
+        register("EmergencyVehicle", EmergencyVehicleAgent::new);
+        register("Bike", BikeAgent::new);
         register("Pedestrian", PedestrianAgent::new);
-        register("Boat", BoatAgent::new);
-        register("Aircraft", AircraftAgent::new);
     }
 
     public static AgentFactory defaultFactory() {
