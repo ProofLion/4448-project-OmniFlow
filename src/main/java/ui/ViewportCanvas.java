@@ -115,11 +115,13 @@ public class ViewportCanvas extends StackPane {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
 
-        gc.setFill(Color.web("#C7CCD5"));
+        gc.setFill(Color.web("#AFC2D5"));
         gc.fillRect(0, 0, w, h);
+        gc.setFill(Color.color(1, 1, 1, 0.18));
+        gc.fillRect(0, 0, w, h * 0.28);
 
         drawGrid(gc, camera, w, h);
-        world.getLayout().drawStatic(gc, camera, w, h);
+        world.getLayout().draw(gc, camera, w, h, tickCount);
 
         gc.setFont(Font.font("Consolas", 10));
         for (Agent agent : world.getAgents()) {
@@ -127,19 +129,11 @@ public class ViewportCanvas extends StackPane {
                 continue;
             }
 
-            Vec2 screen = camera.worldToScreen(agent.getPosition());
-            double radius = agent.getRenderRadius() * camera.getZoom();
-
-            gc.setFill(agent.getColor());
-            gc.fillOval(screen.x - radius, screen.y - radius, radius * 2, radius * 2);
-
-            gc.setStroke(Color.color(0, 0, 0, 0.35));
-            gc.strokeOval(screen.x - radius, screen.y - radius, radius * 2, radius * 2);
-
-            gc.setFill(Color.BLACK);
-            gc.fillText(agent.getShortLabel(), screen.x + radius + 2, screen.y - radius - 2);
+            drawAgent(gc, camera, agent);
 
             if (selectionModel.getSelectedAgent() == agent) {
+                Vec2 screen = camera.worldToScreen(agent.getPosition());
+                double radius = agent.getRenderRadius() * camera.getZoom();
                 gc.setStroke(Color.GOLD);
                 gc.setLineWidth(2.4);
                 gc.strokeOval(screen.x - (radius + 4), screen.y - (radius + 4), (radius + 4) * 2, (radius + 4) * 2);
@@ -148,6 +142,55 @@ public class ViewportCanvas extends StackPane {
         }
 
         HudOverlay.draw(gc, fps, tickCount);
+    }
+
+    private void drawAgent(GraphicsContext gc, Camera2D camera, Agent agent) {
+        Vec2 screen = camera.worldToScreen(agent.getPosition());
+        double radius = agent.getRenderRadius() * camera.getZoom();
+        double width = radius * 2.6;
+        double height = radius * 1.35;
+
+        gc.save();
+        gc.translate(screen.x, screen.y);
+        gc.rotate(getRotationDegrees(agent));
+
+        gc.setFill(Color.color(0, 0, 0, 0.18));
+        gc.fillRoundRect((-width / 2) + 2, (-height / 2) + 2, width, height, height, height);
+
+        if ("Pedestrian".equals(agent.getTypeName())) {
+            gc.setFill(agent.getColor());
+            gc.fillOval(-radius, -radius, radius * 2, radius * 2);
+            gc.setStroke(Color.color(0, 0, 0, 0.35));
+            gc.strokeOval(-radius, -radius, radius * 2, radius * 2);
+        } else if ("Bike".equals(agent.getTypeName())) {
+            gc.setStroke(agent.getColor());
+            gc.setLineWidth(Math.max(2.0, camera.getZoom() * 1.6));
+            gc.strokeOval(-width / 2, -height / 2, height, height);
+            gc.strokeOval(width / 2 - height, -height / 2, height, height);
+            gc.strokeLine(-width / 4, -height / 2, 0, 0);
+            gc.strokeLine(0, 0, width / 5, -height / 2);
+            gc.strokeLine(0, 0, 0, height / 2);
+            gc.strokeLine(width / 5, -height / 2, width / 3, -height / 2);
+        } else {
+            gc.setFill(agent.getColor());
+            gc.fillRoundRect(-width / 2, -height / 2, width, height, height, height);
+            gc.setFill(Color.color(1, 1, 1, 0.35));
+            gc.fillRoundRect(-width / 2 + 4, -height / 2 + 3, width * 0.45, height * 0.35, height / 2, height / 2);
+            gc.setStroke(Color.color(0, 0, 0, 0.35));
+            gc.strokeRoundRect(-width / 2, -height / 2, width, height, height, height);
+        }
+
+        gc.restore();
+        gc.setFill(Color.BLACK);
+        gc.fillText(agent.getShortLabel(), screen.x + radius + 4, screen.y - radius - 4);
+    }
+
+    private double getRotationDegrees(Agent agent) {
+        Vec2 velocity = agent.getVelocity();
+        if (Math.abs(velocity.x) >= Math.abs(velocity.y)) {
+            return velocity.x >= 0 ? 0 : 180;
+        }
+        return velocity.y >= 0 ? 90 : -90;
     }
 
     private void drawGrid(GraphicsContext gc, Camera2D camera, double w, double h) {

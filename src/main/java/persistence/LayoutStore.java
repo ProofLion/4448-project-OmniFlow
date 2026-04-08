@@ -49,9 +49,9 @@ public final class LayoutStore {
     public static LoadedLayout load(Path path, Map<String, MapLayout> layoutsByName) throws IOException {
         List<String> lines = Files.readAllLines(path);
 
-        String layoutName = "Intersection";
-        double cameraX = -220;
-        double cameraY = -160;
+        String layoutName = "Downtown Intersection";
+        double cameraX = -230;
+        double cameraY = -155;
         double zoom = 1.6;
         List<Agent> agents = new ArrayList<>();
 
@@ -78,13 +78,17 @@ public final class LayoutStore {
                     double y = Double.parseDouble(parts[3]);
                     double vx = Double.parseDouble(parts[4]);
                     double vy = Double.parseDouble(parts[5]);
-                    agents.add(AgentFactory.defaultFactory().createWithId(type, id, new Vec2(x, y), new Vec2(vx, vy)));
+                    try {
+                        agents.add(AgentFactory.defaultFactory().createWithId(type, id, new Vec2(x, y), new Vec2(vx, vy)));
+                    } catch (IllegalArgumentException ignored) {
+                        // Ignore unknown legacy agent types so old save files still partially load.
+                    }
                 }
             }
         }
 
         if (!layoutsByName.containsKey(layoutName)) {
-            layoutName = layoutsByName.keySet().stream().findFirst().orElse("Intersection");
+            layoutName = layoutsByName.keySet().stream().findFirst().orElse("Downtown Intersection");
         }
 
         return new LoadedLayout(layoutName, cameraX, cameraY, zoom, agents);

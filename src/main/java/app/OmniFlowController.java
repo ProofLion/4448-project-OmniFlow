@@ -14,9 +14,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.Agent;
 import model.MapLayout;
-import model.layouts.AirportLayout;
-import model.layouts.HarborLayout;
-import model.layouts.IntersectionLayout;
+import model.layouts.DowntownIntersectionLayout;
+import model.layouts.EmergencyCorridorLayout;
+import model.layouts.SchoolZoneLayout;
 import persistence.LayoutStore;
 import sim.Camera2D;
 import sim.SelectionModel;
@@ -45,13 +45,14 @@ public class OmniFlowController {
     public void init(Stage stage) {
         registerLayouts();
 
-        world = new World(layoutsByName.get("Intersection"));
+        world = new World(layoutsByName.get("Downtown Intersection"));
         world.getLayout().seed(world);
 
         engine = new SimulationEngine(world);
 
         mainView = new MainView();
         controlPanel = mainView.getControlPanel();
+        camera.setState(world.getLayout().getSuggestedCameraOffset().x, world.getLayout().getSuggestedCameraOffset().y, 1.6);
 
         configureControls(stage);
 
@@ -60,7 +61,7 @@ public class OmniFlowController {
 
         Scene scene = new Scene(mainView.getRoot(), 1250, 760);
         stage.setScene(scene);
-        stage.setTitle("OmniFlow - JavaFX Scaffold");
+        stage.setTitle("OmniFlow - City Traffic Simulator");
         stage.show();
 
         startRenderLoop();
@@ -68,18 +69,18 @@ public class OmniFlowController {
     }
 
     private void registerLayouts() {
-        MapLayout intersection = new IntersectionLayout();
-        MapLayout harbor = new HarborLayout();
-        MapLayout airport = new AirportLayout();
+        MapLayout downtown = new DowntownIntersectionLayout();
+        MapLayout schoolZone = new SchoolZoneLayout();
+        MapLayout emergencyCorridor = new EmergencyCorridorLayout();
 
-        layoutsByName.put(intersection.getName(), intersection);
-        layoutsByName.put(harbor.getName(), harbor);
-        layoutsByName.put(airport.getName(), airport);
+        layoutsByName.put(downtown.getName(), downtown);
+        layoutsByName.put(schoolZone.getName(), schoolZone);
+        layoutsByName.put(emergencyCorridor.getName(), emergencyCorridor);
     }
 
     private void configureControls(Stage stage) {
         controlPanel.getLayoutSelector().getItems().addAll(layoutsByName.keySet());
-        controlPanel.getLayoutSelector().getSelectionModel().select("Intersection");
+        controlPanel.getLayoutSelector().getSelectionModel().select("Downtown Intersection");
 
         controlPanel.getStartPauseButton().setOnAction(event -> {
             if (engine.isRunning()) {
@@ -103,10 +104,9 @@ public class OmniFlowController {
 
         setupTypeToggle(controlPanel.getCarsToggle());
         setupTypeToggle(controlPanel.getBusesToggle());
-        setupTypeToggle(controlPanel.getEmergencyToggle());
+        setupTypeToggle(controlPanel.getEmergencyVehiclesToggle());
+        setupTypeToggle(controlPanel.getBikesToggle());
         setupTypeToggle(controlPanel.getPedestriansToggle());
-        setupTypeToggle(controlPanel.getBoatsToggle());
-        setupTypeToggle(controlPanel.getAircraftToggle());
 
         controlPanel.getAddRandomAgentsButton().setOnAction(event -> {
             engine.addRandomAgents(20);
@@ -123,7 +123,9 @@ public class OmniFlowController {
         controlPanel.getLayoutSelector().setOnAction(event -> {
             String selected = controlPanel.getLayoutSelector().getValue();
             if (selected != null && layoutsByName.containsKey(selected)) {
-                engine.useLayout(layoutsByName.get(selected));
+                MapLayout layout = layoutsByName.get(selected);
+                engine.useLayout(layout);
+                camera.setState(layout.getSuggestedCameraOffset().x, layout.getSuggestedCameraOffset().y, 1.6);
                 controlPanel.getStartPauseButton().setText("Start");
                 selectionModel.setSelectedAgent(null);
                 updateSelectedAgentText(null);
@@ -150,17 +152,14 @@ public class OmniFlowController {
         if (controlPanel.getBusesToggle().isSelected()) {
             enabled.add("Bus");
         }
-        if (controlPanel.getEmergencyToggle().isSelected()) {
-            enabled.add("Emergency");
+        if (controlPanel.getEmergencyVehiclesToggle().isSelected()) {
+            enabled.add("EmergencyVehicle");
+        }
+        if (controlPanel.getBikesToggle().isSelected()) {
+            enabled.add("Bike");
         }
         if (controlPanel.getPedestriansToggle().isSelected()) {
             enabled.add("Pedestrian");
-        }
-        if (controlPanel.getBoatsToggle().isSelected()) {
-            enabled.add("Boat");
-        }
-        if (controlPanel.getAircraftToggle().isSelected()) {
-            enabled.add("Aircraft");
         }
 
         engine.setUpdatingEnabledTypes(enabled);
@@ -248,17 +247,17 @@ public class OmniFlowController {
     private void refreshStats() {
         Map<String, Long> counts = engine.countByType();
         String text = String.format(Locale.US,
-            "Tick: %d\nFPS (est): %.1f\nSpeed: %.2fx\nRunning: %s\nCars: %d\nBuses: %d\nEmergency: %d\nPedestrians: %d\nBoats: %d\nAircraft: %d",
+            "Layout: %s\nTick: %d\nFPS (est): %.1f\nSpeed: %.2fx\nRunning: %s\nCars: %d\nBuses: %d\nEmergency Vehicles: %d\nBikes: %d\nPedestrians: %d",
+            world.getLayout().getName(),
             engine.getTickCount(),
             fps,
             engine.getSpeedMultiplier(),
             engine.isRunning(),
             counts.getOrDefault("Car", 0L),
             counts.getOrDefault("Bus", 0L),
-            counts.getOrDefault("Emergency", 0L),
-            counts.getOrDefault("Pedestrian", 0L),
-            counts.getOrDefault("Boat", 0L),
-            counts.getOrDefault("Aircraft", 0L)
+            counts.getOrDefault("EmergencyVehicle", 0L),
+            counts.getOrDefault("Bike", 0L),
+            counts.getOrDefault("Pedestrian", 0L)
         );
         controlPanel.getStatsArea().setText(text);
 

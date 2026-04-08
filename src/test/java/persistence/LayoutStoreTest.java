@@ -11,8 +11,8 @@ import java.util.Map;
 import model.Agent;
 import model.AgentFactory;
 import model.MapLayout;
-import model.layouts.HarborLayout;
-import model.layouts.IntersectionLayout;
+import model.layouts.DowntownIntersectionLayout;
+import model.layouts.SchoolZoneLayout;
 import org.junit.jupiter.api.Test;
 import sim.Camera2D;
 import util.Vec2;
@@ -26,24 +26,24 @@ class LayoutStoreTest {
             camera.setState(-10.5, 45.25, 2.2);
 
             Agent first = AgentFactory.defaultFactory().createWithId("Car", 310, new Vec2(1, 2), new Vec2(3, 4));
-            Agent second = AgentFactory.defaultFactory().createWithId("Boat", 311, new Vec2(-5, 6), new Vec2(7, -8));
+            Agent second = AgentFactory.defaultFactory().createWithId("Bike", 311, new Vec2(-5, 6), new Vec2(7, 0));
 
-            LayoutStore.save(tempFile, "Harbor", camera, java.util.List.of(first, second));
+            LayoutStore.save(tempFile, "School Zone", camera, java.util.List.of(first, second));
 
             Map<String, MapLayout> layouts = new LinkedHashMap<>();
-            layouts.put("Intersection", new IntersectionLayout());
-            layouts.put("Harbor", new HarborLayout());
+            layouts.put("Downtown Intersection", new DowntownIntersectionLayout());
+            layouts.put("School Zone", new SchoolZoneLayout());
 
             LayoutStore.LoadedLayout loaded = LayoutStore.load(tempFile, layouts);
 
-            assertEquals("Harbor", loaded.layoutName());
+            assertEquals("School Zone", loaded.layoutName());
             assertEquals(-10.5, loaded.cameraX(), 0.0001);
             assertEquals(45.25, loaded.cameraY(), 0.0001);
             assertEquals(2.2, loaded.zoom(), 0.0001);
             assertEquals(2, loaded.agents().size());
             assertEquals("Car", loaded.agents().get(0).getTypeName());
             assertEquals(310, loaded.agents().get(0).getId());
-            assertEquals("Boat", loaded.agents().get(1).getTypeName());
+            assertEquals("Bike", loaded.agents().get(1).getTypeName());
             assertEquals(311, loaded.agents().get(1).getId());
         } finally {
             Files.deleteIfExists(tempFile);
@@ -56,11 +56,11 @@ class LayoutStoreTest {
         try {
             Files.writeString(tempFile, "layout=DoesNotExist\n");
             Map<String, MapLayout> layouts = new LinkedHashMap<>();
-            layouts.put("Intersection", new IntersectionLayout());
-            layouts.put("Harbor", new HarborLayout());
+            layouts.put("Downtown Intersection", new DowntownIntersectionLayout());
+            layouts.put("School Zone", new SchoolZoneLayout());
 
             LayoutStore.LoadedLayout loaded = LayoutStore.load(tempFile, layouts);
-            assertEquals("Intersection", loaded.layoutName());
+            assertEquals("Downtown Intersection", loaded.layoutName());
             assertTrue(loaded.agents().isEmpty());
         } finally {
             Files.deleteIfExists(tempFile);

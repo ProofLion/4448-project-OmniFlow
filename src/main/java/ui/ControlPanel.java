@@ -21,10 +21,9 @@ public class ControlPanel extends VBox {
 
     private final CheckBox carsToggle = new CheckBox("Cars");
     private final CheckBox busesToggle = new CheckBox("Buses");
-    private final CheckBox emergencyToggle = new CheckBox("Emergency Vehicles");
+    private final CheckBox emergencyVehiclesToggle = new CheckBox("Emergency Vehicles");
+    private final CheckBox bikesToggle = new CheckBox("Bikes");
     private final CheckBox pedestriansToggle = new CheckBox("Pedestrians");
-    private final CheckBox boatsToggle = new CheckBox("Boats");
-    private final CheckBox aircraftToggle = new CheckBox("Aircraft");
 
     private final Button addRandomAgentsButton = new Button("Add Random Agents");
     private final Button clearAgentsButton = new Button("Clear Agents");
@@ -41,7 +40,7 @@ public class ControlPanel extends VBox {
         setPadding(new Insets(12));
         setSpacing(8);
         setPrefWidth(300);
-        setStyle("-fx-background-color: #F4F5F8;");
+        setStyle("-fx-background-color: linear-gradient(to bottom, #FBFCFE, #E8EDF4); -fx-border-color: #CBD5E1;");
 
         speedSlider.setShowTickLabels(true);
         speedSlider.setShowTickMarks(true);
@@ -51,35 +50,33 @@ public class ControlPanel extends VBox {
 
         carsToggle.setSelected(true);
         busesToggle.setSelected(true);
-        emergencyToggle.setSelected(true);
+        emergencyVehiclesToggle.setSelected(true);
+        bikesToggle.setSelected(true);
         pedestriansToggle.setSelected(true);
-        boatsToggle.setSelected(true);
-        aircraftToggle.setSelected(true);
 
         statsArea.setEditable(false);
         statsArea.setWrapText(true);
-        statsArea.setPrefRowCount(7);
+        statsArea.setPrefRowCount(8);
 
         selectedAgentArea.setEditable(false);
         selectedAgentArea.setWrapText(true);
         selectedAgentArea.setPrefRowCount(4);
 
         getChildren().addAll(
-            new Label("Simulation"),
+            new Label("Simulation Controls"),
             startPauseButton,
             stepButton,
             new Label("Speed"),
             speedSlider,
-            new Label("Visible/Active Agent Types"),
+            new Label("Active Agent Types"),
             carsToggle,
             busesToggle,
-            emergencyToggle,
+            emergencyVehiclesToggle,
+            bikesToggle,
             pedestriansToggle,
-            boatsToggle,
-            aircraftToggle,
             addRandomAgentsButton,
             clearAgentsButton,
-            new Label("Demo Layout"),
+            new Label("City Layout"),
             layoutSelector,
             saveLayoutButton,
             loadLayoutButton,
@@ -113,20 +110,16 @@ public class ControlPanel extends VBox {
         return busesToggle;
     }
 
-    public CheckBox getEmergencyToggle() {
-        return emergencyToggle;
+    public CheckBox getEmergencyVehiclesToggle() {
+        return emergencyVehiclesToggle;
+    }
+
+    public CheckBox getBikesToggle() {
+        return bikesToggle;
     }
 
     public CheckBox getPedestriansToggle() {
         return pedestriansToggle;
-    }
-
-    public CheckBox getBoatsToggle() {
-        return boatsToggle;
-    }
-
-    public CheckBox getAircraftToggle() {
-        return aircraftToggle;
     }
 
     public Button getAddRandomAgentsButton() {
