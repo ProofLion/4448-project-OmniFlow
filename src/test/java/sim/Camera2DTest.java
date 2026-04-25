@@ -10,7 +10,7 @@ class Camera2DTest {
     @Test
     void worldToScreenRoundTripIsConsistent() {
         Camera2D camera = new Camera2D();
-        Vec2 world = new Vec2(25, -40);
+        Vec2 world = new Vec2(25, -30);
 
         Vec2 screen = camera.worldToScreen(world);
         Vec2 recovered = camera.screenToWorld(screen.x, screen.y);
