@@ -43,6 +43,10 @@ public class World {
         agents.add(agent);
     }
 
+    public void removeAgent(Agent agent) {
+        agents.remove(agent);
+    }
+
     public void clearAgents() {
         agents.clear();
     }
