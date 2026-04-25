@@ -13,6 +13,7 @@ public class MainView {
     private final ControlPanel controlPanel = new ControlPanel();
 
     public MainView() {
+        root.setStyle("-fx-background-color: #DCE5EF;");
         root.setCenter(viewportCanvas);
         root.setRight(controlPanel);
     }
