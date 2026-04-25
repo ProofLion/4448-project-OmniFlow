@@ -118,7 +118,6 @@ public abstract class BaseAgent implements Agent {
         beforeUpdate(world);
 
         if (shouldPause(world)) {
-            setVelocity(new Vec2(0, 0));
             return;
         }
 
@@ -126,7 +125,7 @@ public abstract class BaseAgent implements Agent {
         integrate(dtSeconds);
         lockToRoute();
         afterMove(world);
-        world.getLayout().keepAgentInBounds(this);
+        world.getLayout().keepAgentInBounds(this, world);
         lockToRoute();
     }
 
