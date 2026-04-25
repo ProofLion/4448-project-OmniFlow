@@ -26,6 +26,7 @@ public class ControlPanel extends VBox {
     private final CheckBox pedestriansToggle = new CheckBox("Pedestrians");
 
     private final Button addRandomAgentsButton = new Button("Add Random Agents");
+    private final Button spawnEmergencyButton = new Button("Spawn Emergency");
     private final Button clearAgentsButton = new Button("Clear Agents");
 
     private final ComboBox<String> layoutSelector = new ComboBox<>();
@@ -37,10 +38,10 @@ public class ControlPanel extends VBox {
     private final TextArea selectedAgentArea = new TextArea();
 
     public ControlPanel() {
-        setPadding(new Insets(12));
-        setSpacing(8);
+        setPadding(new Insets(14));
+        setSpacing(9);
         setPrefWidth(300);
-        setStyle("-fx-background-color: linear-gradient(to bottom, #FBFCFE, #E8EDF4); -fx-border-color: #CBD5E1;");
+        setStyle("-fx-background-color: linear-gradient(to bottom, #F8FBFF, #E6EDF5); -fx-border-color: #C7D2E0; -fx-border-width: 0 0 0 1;");
 
         speedSlider.setShowTickLabels(true);
         speedSlider.setShowTickMarks(true);
@@ -61,12 +62,13 @@ public class ControlPanel extends VBox {
         selectedAgentArea.setEditable(false);
         selectedAgentArea.setWrapText(true);
         selectedAgentArea.setPrefRowCount(4);
+        selectedAgentArea.setPromptText("Select an agent in the viewport.");
 
         getChildren().addAll(
-            new Label("Simulation Controls"),
+            new Label("OmniFlow Controls"),
             startPauseButton,
             stepButton,
-            new Label("Speed"),
+            new Label("Simulation Speed"),
             speedSlider,
             new Label("Active Agent Types"),
             carsToggle,
@@ -75,12 +77,13 @@ public class ControlPanel extends VBox {
             bikesToggle,
             pedestriansToggle,
             addRandomAgentsButton,
+            spawnEmergencyButton,
             clearAgentsButton,
-            new Label("City Layout"),
+            new Label("Layout"),
             layoutSelector,
             saveLayoutButton,
             loadLayoutButton,
-            new Label("Stats"),
+            new Label("Simulation Stats"),
             statsArea,
             new Label("Selected Agent"),
             selectedAgentArea
@@ -128,6 +131,10 @@ public class ControlPanel extends VBox {
 
     public Button getClearAgentsButton() {
         return clearAgentsButton;
+    }
+
+    public Button getSpawnEmergencyButton() {
+        return spawnEmergencyButton;
     }
 
     public ComboBox<String> getLayoutSelector() {
