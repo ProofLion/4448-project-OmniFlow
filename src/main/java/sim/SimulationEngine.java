@@ -98,6 +98,18 @@ public class SimulationEngine {
         world.clearAgents();
     }
 
+    public void removeAgentsOfType(String type) {
+        List<Agent> doomed = new ArrayList<>();
+        for (Agent agent : world.getAgents()) {
+            if (type.equals(agent.getTypeName())) {
+                doomed.add(agent);
+            }
+        }
+        for (Agent agent : doomed) {
+            world.removeAgent(agent);
+        }
+    }
+
     public void useLayout(MapLayout layout) {
         pause();
         world.setLayout(layout);
@@ -110,6 +122,9 @@ public class SimulationEngine {
         RandomGenerator random = randomSupplier.get();
         for (int i = 0; i < count; i++) {
             String type = randomDowntownType(random);
+            if (!updatingEnabledTypes.contains(type)) {
+                continue;
+            }
             Vec2 pos;
             Vec2 vel;
             if (AgentTypes.PEDESTRIAN.equals(type)) {
@@ -155,6 +170,9 @@ public class SimulationEngine {
     }
 
     public void spawnEmergencyVehicle() {
+        if (!updatingEnabledTypes.contains(AgentTypes.EMERGENCY_VEHICLE)) {
+            return;
+        }
         boolean alreadyPresent = world.getAgents().stream()
             .anyMatch(agent -> AgentTypes.EMERGENCY_VEHICLE.equals(agent.getTypeName()));
         if (alreadyPresent) {

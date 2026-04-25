@@ -97,11 +97,11 @@ public class OmniFlowController {
             refreshStats();
         });
 
-        setupTypeToggle(controlPanel.getCarsToggle());
-        setupTypeToggle(controlPanel.getBusesToggle());
-        setupTypeToggle(controlPanel.getEmergencyVehiclesToggle());
-        setupTypeToggle(controlPanel.getBikesToggle());
-        setupTypeToggle(controlPanel.getPedestriansToggle());
+        setupTypeToggle(controlPanel.getCarsToggle(), AgentTypes.CAR);
+        setupTypeToggle(controlPanel.getBusesToggle(), AgentTypes.BUS);
+        setupTypeToggle(controlPanel.getEmergencyVehiclesToggle(), AgentTypes.EMERGENCY_VEHICLE);
+        setupTypeToggle(controlPanel.getBikesToggle(), AgentTypes.BIKE);
+        setupTypeToggle(controlPanel.getPedestriansToggle(), AgentTypes.PEDESTRIAN);
 
         controlPanel.getAddRandomAgentsButton().setOnAction(event -> {
             engine.addRandomAgents(20);
@@ -140,8 +140,19 @@ public class OmniFlowController {
         applyTypeFilters();
     }
 
-    private void setupTypeToggle(CheckBox checkBox) {
-        checkBox.selectedProperty().addListener((obs, oldV, newV) -> applyTypeFilters());
+    private void setupTypeToggle(CheckBox checkBox, String type) {
+        checkBox.selectedProperty().addListener((obs, oldV, newV) -> {
+            applyTypeFilters();
+            if (Boolean.FALSE.equals(newV)) {
+                engine.removeAgentsOfType(type);
+                if (selectionModel.getSelectedAgent() != null
+                    && type.equals(selectionModel.getSelectedAgent().getTypeName())) {
+                    selectionModel.setSelectedAgent(null);
+                    updateSelectedAgentText(null);
+                }
+                refreshStats();
+            }
+        });
     }
 
     private void applyTypeFilters() {
