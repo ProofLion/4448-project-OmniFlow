@@ -10,6 +10,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import model.Agent;
+import model.AgentTypes;
 import sim.Camera2D;
 import sim.SelectionModel;
 import sim.World;
@@ -29,7 +30,7 @@ public class ViewportCanvas extends StackPane {
 
     public ViewportCanvas() {
         getChildren().add(canvas);
-        setStyle("-fx-background-color: #D7DBE2;");
+        setStyle("-fx-background-color: #D2DAE6;");
 
         // Keep Canvas size matched to parent region so we can use layout panes naturally.
         widthProperty().addListener((obs, oldV, newV) -> canvas.setWidth(newV.doubleValue()));
@@ -82,7 +83,7 @@ public class ViewportCanvas extends StackPane {
         });
 
         canvas.setOnScroll(event -> {
-            double zoomFactor = event.getDeltaY() > 0 ? 1.1 : 0.9;
+            double zoomFactor = Math.pow(1.0015, event.getDeltaY());
             camera.zoomAroundScreenPoint(zoomFactor, event.getX(), event.getY());
         });
 
@@ -115,13 +116,13 @@ public class ViewportCanvas extends StackPane {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
 
-        gc.setFill(Color.web("#AFC2D5"));
+        gc.setFill(Color.web("#B8C8DA"));
         gc.fillRect(0, 0, w, h);
         gc.setFill(Color.color(1, 1, 1, 0.18));
         gc.fillRect(0, 0, w, h * 0.28);
 
         drawGrid(gc, camera, w, h);
-        world.getLayout().draw(gc, camera, w, h, tickCount);
+        world.getLayout().draw(gc, camera, w, h, tickCount, world);
 
         gc.setFont(Font.font("Consolas", 10));
         for (Agent agent : world.getAgents()) {
@@ -157,12 +158,12 @@ public class ViewportCanvas extends StackPane {
         gc.setFill(Color.color(0, 0, 0, 0.18));
         gc.fillRoundRect((-width / 2) + 2, (-height / 2) + 2, width, height, height, height);
 
-        if ("Pedestrian".equals(agent.getTypeName())) {
+        if (AgentTypes.PEDESTRIAN.equals(agent.getTypeName())) {
             gc.setFill(agent.getColor());
             gc.fillOval(-radius, -radius, radius * 2, radius * 2);
             gc.setStroke(Color.color(0, 0, 0, 0.35));
             gc.strokeOval(-radius, -radius, radius * 2, radius * 2);
-        } else if ("Bike".equals(agent.getTypeName())) {
+        } else if (AgentTypes.BIKE.equals(agent.getTypeName())) {
             gc.setStroke(agent.getColor());
             gc.setLineWidth(Math.max(2.0, camera.getZoom() * 1.6));
             gc.strokeOval(-width / 2, -height / 2, height, height);
@@ -176,6 +177,12 @@ public class ViewportCanvas extends StackPane {
             gc.fillRoundRect(-width / 2, -height / 2, width, height, height, height);
             gc.setFill(Color.color(1, 1, 1, 0.35));
             gc.fillRoundRect(-width / 2 + 4, -height / 2 + 3, width * 0.45, height * 0.35, height / 2, height / 2);
+            if (AgentTypes.BUS.equals(agent.getTypeName())) {
+                gc.setFill(Color.color(0.9, 0.95, 1.0, 0.8));
+                gc.fillRect(-2, -height / 2 + 2, 5, height - 4);
+                gc.setFill(Color.color(1.0, 0.95, 0.55, 0.7));
+                gc.fillRect(width / 2 - 6, -height / 2 + 3, 4, 4);
+            }
             gc.setStroke(Color.color(0, 0, 0, 0.35));
             gc.strokeRoundRect(-width / 2, -height / 2, width, height, height, height);
         }
