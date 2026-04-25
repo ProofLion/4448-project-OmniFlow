@@ -1,84 +1,85 @@
 # Assignment Requirements Trace
 
-This file maps the class rubric to concrete code and documents where each requirement is satisfied in the final city traffic simulator.
+This file maps the class rubric to the current OmniFlow codebase.
 
 ## 1. Identify at least 4 design patterns
-
-- Satisfied by: `DESIGN.md`
+- Satisfied by:
+  - `DESIGN.md`
 - Evidence:
   - Factory: `src/main/java/model/AgentFactory.java`
   - Strategy: `src/main/java/model/MapLayout.java` and `src/main/java/model/layouts/*`
-  - Observer / MVC: `src/main/java/app/OmniFlowController.java`, `src/main/java/sim/SelectionModel.java`, `src/main/java/ui/*`
   - Template Method: `src/main/java/model/BaseAgent.java`
+  - Observer / MVC-style UI: `src/main/java/app/OmniFlowController.java`, `src/main/java/sim/SelectionModel.java`, `src/main/java/ui/*`
 
-## 2. Foundational classes and interfaces have real logic
-
+## 2. Foundational classes and interfaces contain real logic
 - `src/main/java/model/Agent.java`
-  - defines the core simulation contract used throughout the program
+  - core simulation contract
 - `src/main/java/model/BaseAgent.java`
-  - contains the shared movement/update algorithm and route handling
+  - shared movement/update algorithm
 - `src/main/java/model/AgentFactory.java`
-  - handles factory-based agent creation
+  - registry-based creation logic
 - `src/main/java/model/MapLayout.java`
-  - defines the layout strategy contract for drawing and traffic rules
+  - shared contract for layouts
 - `src/main/java/sim/SimulationEngine.java`
-  - advances the simulation, applies filters, changes layouts, and counts agents
+  - tick loop, downtown-focused random seeding, filters, counters
 - `src/main/java/sim/World.java`
-  - stores the active layout, active agents, and current tick state
+  - active layout, active agents, current tick state
 
 ## 3. OO principles are demonstrated
-
 ### Coding to abstractions
-
-- `SimulationEngine` works with `AgentProvider` and `MapLayout` abstractions.
-- `World` stores `List<Agent>` rather than concrete subclasses.
-- The controller switches layouts through `MapLayout` rather than direct concrete coupling.
+- `SimulationEngine` works with `AgentProvider` and `MapLayout`.
+- `World` stores `List<Agent>`.
+- The controller still uses `MapLayout` rather than coupling itself to downtown-specific logic.
 
 ### Polymorphism
-
-- `SimulationEngine` updates every agent through `Agent.update(world, dt)`.
-- Different subclasses provide different movement behavior:
+- All agents update through `Agent.update(world, dt)`.
+- Different subclasses vary movement and stop behavior:
   - `CarAgent`
   - `BusAgent`
   - `EmergencyVehicleAgent`
   - `BikeAgent`
   - `PedestrianAgent`
-- Test reference: `src/test/java/model/AgentFactoryTest.java`
+- Recent downtown-specific examples:
+  - buses dwell at the curb stop and can drop off pedestrians
+  - bikes follow pedestrian crossing rules instead of vehicle light rules
+  - emergency vehicles use a different speed policy during intersection preemption
 
 ### Dependency injection
-
 - `SimulationEngine` supports constructor injection for:
   - `World`
   - `AgentProvider`
   - `Supplier<RandomGenerator>`
-- This keeps the engine easier to test and avoids hard-coding all dependencies inside the class.
 
 ## 4. UI or persisted state requirement
-
-- UI requirement is satisfied through the JavaFX application:
+- UI requirement:
   - `src/main/java/app/*`
   - `src/main/java/ui/*`
-- Persisted state requirement is also satisfied through:
+- Persisted state requirement:
   - `src/main/java/persistence/LayoutStore.java`
 
-## 5. Meaningful test cases
-
+## 5. Meaningful tests exist
 - `src/test/java/model/AgentFactoryTest.java`
-  - verifies factory creation
-  - verifies polymorphic agent updates
-  - verifies helpful errors for unknown types
+  - factory creation
+  - polymorphic update behavior
+  - unknown type error handling
 - `src/test/java/sim/SimulationEngineTest.java`
-  - verifies stepping
-  - verifies type filtering
-  - verifies vehicle stopping at red lights
-  - verifies emergency vehicle behavior
-  - verifies layout switching
+  - ticking
+  - enabled/disabled type updates
+  - emergency vehicle behavior
+  - red-light stopping
+  - layout switching
+- `src/test/java/model/layouts/LayoutBehaviorTest.java`
+  - downtown stop-before-intersection behavior
+  - yellow-light handling near stop bars
+  - pedestrians finishing a crossing after the signal turns red
+  - vehicles queueing behind a bus at the stop
+  - emergency preemption holding conflicting traffic
 - `src/test/java/persistence/LayoutStoreTest.java`
-  - verifies save/load round-trip
-  - verifies fallback behavior for unknown layout names
+  - save/load round-trip
+  - fallback behavior for unknown layouts
 - `src/test/java/sim/Camera2DTest.java`
-  - verifies camera coordinate conversions and zoom clamping
+  - screen/world conversion and zoom clamping
 
-## 6. This requirements trace file exists
-
-- Satisfied by: `REQUIREMENTS.md`
+## 6. Project direction matches Piazza clarification
+- Piazza clarified that the project needs **four** required design patterns.
+- The docs and demo materials in this repo align to that clarification.
