@@ -49,13 +49,13 @@ public class DowntownIntersectionLayout implements MapLayout {
     private static final long SIGNAL_CYCLE = 600;
     private static final long HORIZONTAL_GREEN_END = 120;
     private static final long HORIZONTAL_YELLOW_END = 150;
-    private static final long HORIZONTAL_PED_WALK_END = 270;
+    private static final long HORIZONTAL_PED_WALK_END = 240;
     private static final long HORIZONTAL_PED_FLASH_END = 300;
     private static final long VERTICAL_GREEN_END = 420;
     private static final long VERTICAL_YELLOW_END = 450;
-    private static final long VERTICAL_PED_WALK_END = 570;
+    private static final long VERTICAL_PED_WALK_END = 540;
     private static final long VERTICAL_PED_FLASH_END = 600;
-    private static final long PEDESTRIAN_START_BUFFER_TICKS = 90;
+    private static final long PEDESTRIAN_START_BUFFER_TICKS = 60;
 
     private static final double NORTH_WALKWAY_Y = -130;
     private static final double SOUTH_WALKWAY_Y = 130;

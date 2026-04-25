@@ -35,9 +35,9 @@ public class PedestrianAgent extends BaseAgent {
     @Override
     protected double getSpeedMultiplier(World world) {
         if (world.getLayout() instanceof DowntownIntersectionLayout downtown && downtown.isPedestrianFlashing(this, world.getTickCount())) {
-            return 0.9;
+            return 1.5;
         }
-        return 0.55;
+        return 1.0;
     }
 
     @Override

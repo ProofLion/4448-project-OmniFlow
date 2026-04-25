@@ -208,7 +208,7 @@ class LayoutBehaviorTest {
 
         pedestrian.update(world, 1.0 / 30.0);
 
-        assertEquals(-39.22, pedestrian.getPosition().x, 0.01);
+        assertEquals(-38.7, pedestrian.getPosition().x, 0.01);
     }
 
     @Test
