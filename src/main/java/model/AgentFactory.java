@@ -23,11 +23,11 @@ public final class AgentFactory implements AgentProvider {
     private final Map<String, AgentCreator> creators = new HashMap<>();
 
     public AgentFactory() {
-        register("Car", CarAgent::new);
-        register("Bus", BusAgent::new);
-        register("EmergencyVehicle", EmergencyVehicleAgent::new);
-        register("Bike", BikeAgent::new);
-        register("Pedestrian", PedestrianAgent::new);
+        register(AgentTypes.CAR, CarAgent::new);
+        register(AgentTypes.BUS, BusAgent::new);
+        register(AgentTypes.EMERGENCY_VEHICLE, EmergencyVehicleAgent::new);
+        register(AgentTypes.BIKE, BikeAgent::new);
+        register(AgentTypes.PEDESTRIAN, PedestrianAgent::new);
     }
 
     public static AgentFactory defaultFactory() {
