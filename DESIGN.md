@@ -1,61 +1,56 @@
 # OmniFlow Design Patterns
 
-This document explains the four design patterns intentionally used in the final city traffic simulator architecture.
+This document explains the four design patterns intentionally used in the final OmniFlow architecture.
 
 ## 1. Factory Pattern
-
-- Where: `src/main/java/model/AgentFactory.java`
+- Where:
+  - `src/main/java/model/AgentFactory.java`
+  - `src/main/java/model/AgentProvider.java`
 - How:
-  - `AgentFactory` stores constructor mappings for `Car`, `Bus`, `EmergencyVehicle`, `Bike`, and `Pedestrian`.
-  - The engine, layouts, and persistence code request agents through the `AgentProvider` abstraction instead of directly using constructors.
-- Why it matters:
-  - New agent types can be added by registering one new creator.
-  - The rest of the code stays focused on the `Agent` abstraction.
+  - `AgentFactory` stores constructor mappings for the supported city agent types.
+  - Other parts of the program request `Agent` objects through the `AgentProvider` abstraction instead of directly calling constructors.
+- Why it helps:
+  - agent creation logic stays centralized
+  - new supported types can be added without introducing a large switch statement
 
 ## 2. Strategy Pattern
-
 - Where:
-  - Strategy contract: `src/main/java/model/MapLayout.java`
-  - Concrete strategies:
-    - `src/main/java/model/layouts/DowntownIntersectionLayout.java`
-    - `src/main/java/model/layouts/SchoolZoneLayout.java`
-    - `src/main/java/model/layouts/EmergencyCorridorLayout.java`
+  - `src/main/java/model/MapLayout.java`
+  - `src/main/java/model/layouts/DowntownIntersectionLayout.java`
 - How:
-  - Each layout controls drawing, initial seeding, stop rules, bus stops, and map bounds.
-  - The controller swaps layouts at runtime through the shared `MapLayout` interface.
-- Why it matters:
-  - Traffic rules and visual scenes can vary without changing the simulation engine.
-  - This makes layout switching easy to explain and demonstrate.
+  - the layout contract still defines drawing, seeding, stop rules, and bounds behavior behind one shared interface
+  - the current demo uses the downtown implementation to package signal timing, bus-stop queueing, bike/pedestrian crossing rules, and emergency-light preemption behind that contract
+- Why it helps:
+  - downtown-specific behavior changes without changing the simulation engine
+  - the renderer and agents still code to the same abstraction instead of hard-coding scene logic everywhere
 
-## 3. Observer + MVC
-
+## 3. Template Method Pattern
 - Where:
-  - Controller: `src/main/java/app/OmniFlowController.java`
-  - Views: `src/main/java/ui/MainView.java`, `src/main/java/ui/ControlPanel.java`, `src/main/java/ui/ViewportCanvas.java`
-  - Model/state: `src/main/java/sim/World.java`, `src/main/java/sim/SimulationEngine.java`, `src/main/java/sim/SelectionModel.java`
+  - `src/main/java/model/BaseAgent.java`
 - How:
-  - The controller connects UI actions to model changes.
-  - JavaFX property listeners and action handlers react to button presses, slider changes, checkboxes, and selection updates.
-  - The rendering layer reads state from the model instead of owning simulation logic.
-- Why it matters:
-  - It keeps responsibilities separated.
-  - The UI stays easier to change without rewriting core simulation code.
-
-## 4. Template Method
-
-- Where: `src/main/java/model/BaseAgent.java`
-- How:
-  - `BaseAgent` defines the shared `update(...)` algorithm:
-    - run pre-update logic
-    - decide whether the agent should pause
-    - apply movement
-    - lock the agent to its route
-    - let the layout recycle the agent if needed
-  - Subclasses customize small hooks like:
-    - `getSpeedMultiplier(...)`
-    - `shouldPause(...)`
+  - `BaseAgent` defines the shared `update(...)` algorithm
+  - subclasses customize only the behavior hooks they need, such as:
     - `beforeUpdate(...)`
+    - `shouldPause(...)`
+    - `getSpeedMultiplier(...)`
     - `afterMove(...)`
-- Why it matters:
-  - The common movement logic is written once.
-  - Agent subclasses stay short, readable, and type-specific.
+- Why it helps:
+  - common movement behavior is written once
+  - agent subclasses stay short and readable
+
+## 4. Observer / MVC-style UI
+- Where:
+  - `src/main/java/app/OmniFlowController.java`
+  - `src/main/java/sim/SelectionModel.java`
+  - `src/main/java/ui/ControlPanel.java`
+  - `src/main/java/ui/ViewportCanvas.java`
+- How:
+  - the controller wires UI actions to simulation state changes
+  - JavaFX listeners react to button presses, slider changes, filter toggles, and selection updates
+  - view classes render model state without owning the simulation rules
+- Why it helps:
+  - responsibilities stay separated
+  - UI changes do not require rewriting core engine logic
+
+## Requirement Note
+Piazza clarified that the project needs **four** design patterns. This document focuses on those four required patterns. If we mention a fifth pattern during the demo, it should be treated as bonus context rather than a requirement.
