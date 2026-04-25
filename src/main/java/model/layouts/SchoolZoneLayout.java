@@ -4,6 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import model.Agent;
 import model.AgentFactory;
+import model.AgentTypes;
 import model.MapLayout;
 import model.TrafficSignalState;
 import sim.Camera2D;
@@ -23,7 +24,7 @@ public class SchoolZoneLayout implements MapLayout {
 
     @Override
     public void draw(GraphicsContext gc, Camera2D camera, double canvasWidth, double canvasHeight, long tickCount) {
-        camera.fillWorldRect(gc, canvasWidth, canvasHeight, MIN_X, MIN_Y, MAX_X - MIN_X, MAX_Y - MIN_Y, Color.web("#E6E2C8"));
+        camera.fillWorldRect(gc, canvasWidth, canvasHeight, MIN_X, MIN_Y, MAX_X - MIN_X, MAX_Y - MIN_Y, Color.web("#F2E6C9"));
         camera.fillWorldRect(gc, canvasWidth, canvasHeight, -330, -55, 660, 110, Color.web("#383B43"));
         camera.fillWorldRect(gc, canvasWidth, canvasHeight, -65, -220, 130, 440, Color.web("#383B43"));
         camera.fillWorldRect(gc, canvasWidth, canvasHeight, -280, -190, 180, 110, Color.web("#C97A5E"));
@@ -37,6 +38,13 @@ public class SchoolZoneLayout implements MapLayout {
             camera.strokeWorldLine(gc, canvasWidth, canvasHeight, i, -82, i, -50);
             camera.strokeWorldLine(gc, canvasWidth, canvasHeight, i, 50, i, 82);
         }
+
+        gc.setStroke(Color.web("#F8FAFC"));
+        gc.setLineWidth(4);
+        camera.strokeWorldLine(gc, canvasWidth, canvasHeight, -86, -27, -86, 27);
+        camera.strokeWorldLine(gc, canvasWidth, canvasHeight, 86, -27, 86, 27);
+        camera.strokeWorldLine(gc, canvasWidth, canvasHeight, -27, -72, 27, -72);
+        camera.strokeWorldLine(gc, canvasWidth, canvasHeight, -27, 72, 27, 72);
 
         gc.setStroke(Color.web("#F1D26A"));
         gc.setLineWidth(2.2);
@@ -54,23 +62,23 @@ public class SchoolZoneLayout implements MapLayout {
     @Override
     public void seed(World world) {
         world.clearAgents();
-        world.addAgent(AgentFactory.defaultFactory().create("Car", new Vec2(-280, -16), new Vec2(48, 0)));
-        world.addAgent(AgentFactory.defaultFactory().create("Car", new Vec2(280, 16), new Vec2(-48, 0)));
-        world.addAgent(AgentFactory.defaultFactory().create("Bus", new Vec2(-320, 32), new Vec2(42, 0)));
-        world.addAgent(AgentFactory.defaultFactory().create("Bike", new Vec2(-310, -40), new Vec2(28, 0)));
-        world.addAgent(AgentFactory.defaultFactory().create("Pedestrian", new Vec2(-42, -170), new Vec2(0, 22)));
-        world.addAgent(AgentFactory.defaultFactory().create("Pedestrian", new Vec2(42, 170), new Vec2(0, -22)));
-        world.addAgent(AgentFactory.defaultFactory().create("Pedestrian", new Vec2(-120, 140), new Vec2(24, 0)));
+        world.addAgent(AgentFactory.defaultFactory().create(AgentTypes.CAR, new Vec2(-280, -16), new Vec2(48, 0)));
+        world.addAgent(AgentFactory.defaultFactory().create(AgentTypes.CAR, new Vec2(280, 16), new Vec2(-48, 0)));
+        world.addAgent(AgentFactory.defaultFactory().create(AgentTypes.BUS, new Vec2(-320, 32), new Vec2(42, 0)));
+        world.addAgent(AgentFactory.defaultFactory().create(AgentTypes.BIKE, new Vec2(-310, -40), new Vec2(28, 0)));
+        world.addAgent(AgentFactory.defaultFactory().create(AgentTypes.PEDESTRIAN, new Vec2(-42, -170), new Vec2(0, 22)));
+        world.addAgent(AgentFactory.defaultFactory().create(AgentTypes.PEDESTRIAN, new Vec2(42, 170), new Vec2(0, -22)));
+        world.addAgent(AgentFactory.defaultFactory().create(AgentTypes.PEDESTRIAN, new Vec2(-120, 140), new Vec2(24, 0)));
     }
 
     @Override
     public boolean shouldVehicleYield(Agent agent, long tickCount) {
-        return !vehicleSignal(tickCount).allowsMovement() && isNearCenter(agent, 92, 32);
+        return !vehicleSignal(tickCount).allowsMovement() && isNearVehicleStopWindow(agent);
     }
 
     @Override
     public boolean shouldPedestrianYield(Agent agent, long tickCount) {
-        return !pedestrianSignal(tickCount).allowsMovement() && isNearCenter(agent, 105, 55);
+        return !pedestrianSignal(tickCount).allowsMovement() && isNearPedestrianEntry(agent);
     }
 
     @Override
@@ -81,7 +89,7 @@ public class SchoolZoneLayout implements MapLayout {
 
     @Override
     public void keepAgentInBounds(Agent agent) {
-        recycleAlongRoute(agent, MIN_X, MAX_X, MIN_Y, MAX_Y);
+        LayoutSupport.recycleAlongRoute(agent, MIN_X, MAX_X, MIN_Y, MAX_Y);
     }
 
     @Override
@@ -101,10 +109,10 @@ public class SchoolZoneLayout implements MapLayout {
 
     private TrafficSignalState vehicleSignal(long tickCount) {
         long phase = tickCount % 160;
-        if (phase < 45) {
+        if (phase < 52) {
             return TrafficSignalState.GREEN;
         }
-        if (phase < 60) {
+        if (phase < 68) {
             return TrafficSignalState.YELLOW;
         }
         return TrafficSignalState.RED;
@@ -112,33 +120,17 @@ public class SchoolZoneLayout implements MapLayout {
 
     private TrafficSignalState pedestrianSignal(long tickCount) {
         long phase = tickCount % 160;
-        if (phase >= 60 && phase < 105) {
+        if (phase >= 68 && phase < 112) {
             return TrafficSignalState.GREEN;
         }
         return TrafficSignalState.RED;
     }
 
-    private boolean isNearCenter(Agent agent, double roadStopDistance, double sidewalkDistance) {
-        Vec2 position = agent.getPosition();
-        if (Math.abs(agent.getVelocity().x) >= Math.abs(agent.getVelocity().y)) {
-            return Math.abs(position.x) < roadStopDistance && Math.abs(position.x) > sidewalkDistance;
-        }
-        return Math.abs(position.y) < roadStopDistance && Math.abs(position.y) > sidewalkDistance;
+    private boolean isNearVehicleStopWindow(Agent agent) {
+        return LayoutSupport.isWithinDirectionalWindow(agent, 34, 118);
     }
 
-    private void recycleAlongRoute(Agent agent, double minX, double maxX, double minY, double maxY) {
-        Vec2 position = agent.getPosition();
-        Vec2 velocity = agent.getVelocity();
-        if (Math.abs(velocity.x) >= Math.abs(velocity.y)) {
-            if (velocity.x >= 0 && position.x > maxX) {
-                agent.setPosition(new Vec2(minX, position.y));
-            } else if (velocity.x < 0 && position.x < minX) {
-                agent.setPosition(new Vec2(maxX, position.y));
-            }
-        } else if (velocity.y >= 0 && position.y > maxY) {
-            agent.setPosition(new Vec2(position.x, minY));
-        } else if (velocity.y < 0 && position.y < minY) {
-            agent.setPosition(new Vec2(position.x, maxY));
-        }
+    private boolean isNearPedestrianEntry(Agent agent) {
+        return LayoutSupport.isWithinDirectionalWindow(agent, 48, 118);
     }
 }
