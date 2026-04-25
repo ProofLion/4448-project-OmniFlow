@@ -30,11 +30,15 @@ The goal is not hyper-realistic traffic modeling. The goal is to demonstrate cle
   - downtown-only layout focus
   - agent selection/details
   - save/load of layout state
+  - manual emergency-vehicle spawn from the control panel
   - longer pedestrian walk windows with "finish crossing" behavior
+  - directional pedestrian signals with separate crossing phases and flashing walk countdowns
   - four-lane downtown roads on both axes
   - bus-stop dwell behavior with trailing vehicles queueing behind the bus
-  - less frequent emergency vehicles with temporary all-red preemption and intersection-clearing slowdown
+  - one-shot emergency vehicles that despawn after clearing the scene
+  - temporary all-red emergency preemption with lane-clearing behavior for vehicles ahead
   - bikes staying on sidewalk routes and stopping short of pedestrian crosswalks
+  - pedestrians and bikes exiting the map instead of looping/teleporting back through the scene
 
 ## Run
 - Windows: `.\gradlew.bat run`

@@ -3,7 +3,7 @@
 ## Short Demo Flow
 1. Launch the app on `Downtown Intersection`.
 2. Start the simulation and point out the shared update loop and live stats.
-3. Pause, step once or twice, and show how the longer walk phase, bus-stop queueing, and emergency all-red preemption affect cars, buses, bikes, and pedestrians.
+3. Pause, step once or twice, and show how the directional walk phases, flashing pedestrian countdown, longer yellow timing, bus-stop queueing, and emergency all-red preemption affect cars, buses, bikes, and pedestrians.
 4. Select an agent to show the detail panel and explain how the UI reads model state.
 5. Zoom in on the four-lane downtown road markings, crosswalks, pedestrian signals, and bus stop to show the visual polish.
 6. Save a layout, then load it back to demonstrate persistence.
