@@ -1,0 +1,7 @@
+.gradle/
+.gradle-local/
+.gradle-local-home/
+build/
+bin/
+out/
+
