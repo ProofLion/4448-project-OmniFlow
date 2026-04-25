@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="sim.SimulationEngineTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-02-21T00:54:13.627Z" hostname="DESKTOP-37NOF64" time="0.224">
-  <properties/>
-  <testcase name="stepAdvancesTickCount()" classname="sim.SimulationEngineTest" time="0.224"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>

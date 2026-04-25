@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="sim.Camera2DTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-02-21T00:54:13.612Z" hostname="DESKTOP-37NOF64" time="0.014">
-  <properties/>
-  <testcase name="zoomIsClamped()" classname="sim.Camera2DTest" time="0.011"/>
-  <testcase name="worldToScreenRoundTripIsConsistent()" classname="sim.Camera2DTest" time="0.001"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
