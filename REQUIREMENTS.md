@@ -68,10 +68,12 @@ This file maps the class rubric to the current OmniFlow codebase.
   - emergency vehicle behavior
   - red-light stopping
   - layout switching
+  - manual emergency spawning without random emergency inserts
 - `src/test/java/model/layouts/LayoutBehaviorTest.java`
   - downtown stop-before-intersection behavior
   - yellow-light handling near stop bars
   - pedestrians finishing a crossing after the signal turns red
+  - directional pedestrian signal timing and flashing-start prevention
   - vehicles queueing behind a bus at the stop
   - emergency preemption holding conflicting traffic
 - `src/test/java/persistence/LayoutStoreTest.java`
