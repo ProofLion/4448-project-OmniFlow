@@ -13,10 +13,9 @@ import javafx.scene.control.CheckBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.Agent;
+import model.AgentTypes;
 import model.MapLayout;
 import model.layouts.DowntownIntersectionLayout;
-import model.layouts.EmergencyCorridorLayout;
-import model.layouts.SchoolZoneLayout;
 import persistence.LayoutStore;
 import sim.Camera2D;
 import sim.SelectionModel;
@@ -70,17 +69,13 @@ public class OmniFlowController {
 
     private void registerLayouts() {
         MapLayout downtown = new DowntownIntersectionLayout();
-        MapLayout schoolZone = new SchoolZoneLayout();
-        MapLayout emergencyCorridor = new EmergencyCorridorLayout();
-
         layoutsByName.put(downtown.getName(), downtown);
-        layoutsByName.put(schoolZone.getName(), schoolZone);
-        layoutsByName.put(emergencyCorridor.getName(), emergencyCorridor);
     }
 
     private void configureControls(Stage stage) {
         controlPanel.getLayoutSelector().getItems().addAll(layoutsByName.keySet());
         controlPanel.getLayoutSelector().getSelectionModel().select("Downtown Intersection");
+        controlPanel.getLayoutSelector().setDisable(true);
 
         controlPanel.getStartPauseButton().setOnAction(event -> {
             if (engine.isRunning()) {
@@ -110,6 +105,11 @@ public class OmniFlowController {
 
         controlPanel.getAddRandomAgentsButton().setOnAction(event -> {
             engine.addRandomAgents(20);
+            refreshStats();
+        });
+
+        controlPanel.getSpawnEmergencyButton().setOnAction(event -> {
+            engine.spawnEmergencyVehicle();
             refreshStats();
         });
 
@@ -147,19 +147,19 @@ public class OmniFlowController {
     private void applyTypeFilters() {
         Set<String> enabled = new HashSet<>();
         if (controlPanel.getCarsToggle().isSelected()) {
-            enabled.add("Car");
+            enabled.add(AgentTypes.CAR);
         }
         if (controlPanel.getBusesToggle().isSelected()) {
-            enabled.add("Bus");
+            enabled.add(AgentTypes.BUS);
         }
         if (controlPanel.getEmergencyVehiclesToggle().isSelected()) {
-            enabled.add("EmergencyVehicle");
+            enabled.add(AgentTypes.EMERGENCY_VEHICLE);
         }
         if (controlPanel.getBikesToggle().isSelected()) {
-            enabled.add("Bike");
+            enabled.add(AgentTypes.BIKE);
         }
         if (controlPanel.getPedestriansToggle().isSelected()) {
-            enabled.add("Pedestrian");
+            enabled.add(AgentTypes.PEDESTRIAN);
         }
 
         engine.setUpdatingEnabledTypes(enabled);
@@ -253,11 +253,11 @@ public class OmniFlowController {
             fps,
             engine.getSpeedMultiplier(),
             engine.isRunning(),
-            counts.getOrDefault("Car", 0L),
-            counts.getOrDefault("Bus", 0L),
-            counts.getOrDefault("EmergencyVehicle", 0L),
-            counts.getOrDefault("Bike", 0L),
-            counts.getOrDefault("Pedestrian", 0L)
+            counts.getOrDefault(AgentTypes.CAR, 0L),
+            counts.getOrDefault(AgentTypes.BUS, 0L),
+            counts.getOrDefault(AgentTypes.EMERGENCY_VEHICLE, 0L),
+            counts.getOrDefault(AgentTypes.BIKE, 0L),
+            counts.getOrDefault(AgentTypes.PEDESTRIAN, 0L)
         );
         controlPanel.getStatsArea().setText(text);
 

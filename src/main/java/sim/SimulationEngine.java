@@ -16,6 +16,7 @@ import javafx.util.Duration;
 import model.Agent;
 import model.AgentFactory;
 import model.AgentProvider;
+import model.AgentTypes;
 import model.MapLayout;
 import util.Vec2;
 
@@ -41,7 +42,7 @@ public class SimulationEngine {
         this.world = Objects.requireNonNull(world, "world");
         this.agentProvider = Objects.requireNonNull(agentProvider, "agentProvider");
         this.randomSupplier = Objects.requireNonNull(randomSupplier, "randomSupplier");
-        updatingEnabledTypes.addAll(List.of("Car", "Bus", "EmergencyVehicle", "Bike", "Pedestrian"));
+        updatingEnabledTypes.addAll(AgentTypes.ALL_CITY_TYPES);
         world.setTickCount(0);
         rebuildTimeline();
     }
@@ -107,33 +108,99 @@ public class SimulationEngine {
 
     public void addRandomAgents(int count) {
         RandomGenerator random = randomSupplier.get();
-        String[] types = {"Car", "Bus", "EmergencyVehicle", "Bike", "Pedestrian"};
         for (int i = 0; i < count; i++) {
-            String type = types[random.nextInt(types.length)];
+            String type = randomDowntownType(random);
             Vec2 pos;
             Vec2 vel;
-            if (random.nextBoolean()) {
-                double laneY = switch (random.nextInt(4)) {
-                    case 0 -> -52;
-                    case 1 -> -18;
-                    case 2 -> 18;
-                    default -> 42;
-                };
-                pos = new Vec2(random.nextBoolean() ? -320 : 320, laneY);
-                double direction = pos.x < 0 ? 1 : -1;
-                vel = new Vec2(direction * random.nextDouble(32, 76), 0);
+            if (AgentTypes.PEDESTRIAN.equals(type)) {
+                if (random.nextBoolean()) {
+                    double crosswalkX = random.nextBoolean() ? -102 : 102;
+                    pos = new Vec2(crosswalkX, random.nextBoolean() ? -240 : 240);
+                    vel = new Vec2(0, pos.y < 0 ? random.nextDouble(22, 32) : -random.nextDouble(22, 32));
+                } else {
+                    double crosswalkY = random.nextBoolean() ? -102 : 102;
+                    pos = new Vec2(random.nextBoolean() ? -260 : 260, crosswalkY);
+                    vel = new Vec2(pos.x < 0 ? random.nextDouble(20, 30) : -random.nextDouble(20, 30), 0);
+                }
+            } else if (AgentTypes.BIKE.equals(type)) {
+                if (random.nextBoolean()) {
+                    double sidewalkX = random.nextBoolean() ? -130 : 130;
+                    pos = new Vec2(sidewalkX, random.nextBoolean() ? -260 : 260);
+                    vel = new Vec2(0, pos.y < 0 ? random.nextDouble(28, 38) : -random.nextDouble(28, 38));
+                } else {
+                    double sidewalkY = random.nextBoolean() ? -130 : 130;
+                    pos = new Vec2(random.nextBoolean() ? -280 : 280, sidewalkY);
+                    vel = new Vec2(pos.x < 0 ? random.nextDouble(26, 36) : -random.nextDouble(26, 36), 0);
+                }
+            } else if (AgentTypes.BUS.equals(type)) {
+                pos = new Vec2(-360, 54);
+                vel = new Vec2(random.nextDouble(46, 56), 0);
+            } else if (random.nextBoolean()) {
+                boolean eastbound = random.nextBoolean();
+                double laneY = eastbound
+                    ? (random.nextBoolean() ? 18 : 54)
+                    : (random.nextBoolean() ? -18 : -54);
+                pos = new Vec2(eastbound ? -360 : 360, laneY);
+                vel = new Vec2((eastbound ? 1 : -1) * random.nextDouble(36, 78), 0);
             } else {
-                double laneX = switch (random.nextInt(3)) {
-                    case 0 -> -42;
-                    case 1 -> 0;
-                    default -> 42;
-                };
-                pos = new Vec2(laneX, random.nextBoolean() ? -220 : 220);
-                double direction = pos.y < 0 ? 1 : -1;
-                vel = new Vec2(0, direction * random.nextDouble(20, 64));
+                boolean southbound = random.nextBoolean();
+                double laneX = southbound
+                    ? (random.nextBoolean() ? -54 : -18)
+                    : (random.nextBoolean() ? 18 : 54);
+                pos = new Vec2(laneX, southbound ? -280 : 280);
+                vel = new Vec2(0, (southbound ? 1 : -1) * random.nextDouble(28, 70));
             }
             world.addAgent(agentProvider.create(type, pos, vel));
         }
+    }
+
+    public void spawnEmergencyVehicle() {
+        boolean alreadyPresent = world.getAgents().stream()
+            .anyMatch(agent -> AgentTypes.EMERGENCY_VEHICLE.equals(agent.getTypeName()));
+        if (alreadyPresent) {
+            return;
+        }
+
+        RandomGenerator random = randomSupplier.get();
+        int route = random.nextInt(4);
+        Vec2 position;
+        Vec2 velocity;
+        switch (route) {
+            case 0 -> {
+                position = new Vec2(-18, -280);
+                velocity = new Vec2(0, 78);
+            }
+            case 1 -> {
+                position = new Vec2(18, 280);
+                velocity = new Vec2(0, -78);
+            }
+            case 2 -> {
+                position = new Vec2(-360, 18);
+                velocity = new Vec2(78, 0);
+            }
+            default -> {
+                position = new Vec2(360, -18);
+                velocity = new Vec2(-78, 0);
+            }
+        }
+        world.addAgent(agentProvider.create(AgentTypes.EMERGENCY_VEHICLE, position, velocity));
+    }
+
+    private String randomDowntownType(RandomGenerator random) {
+        int roll = random.nextInt(29);
+        if (roll < 12) {
+            return AgentTypes.CAR;
+        }
+        if (roll < 15) {
+            return AgentTypes.BUS;
+        }
+        if (roll < 23) {
+            return AgentTypes.PEDESTRIAN;
+        }
+        if (roll < 29) {
+            return AgentTypes.BIKE;
+        }
+        return AgentTypes.BIKE;
     }
 
     public Map<String, Long> countByType() {
