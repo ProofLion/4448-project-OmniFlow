@@ -186,8 +186,10 @@ public class DowntownIntersectionLayout implements MapLayout {
             world.removeAgent(agent);
             return;
         }
-        if (AgentTypes.EMERGENCY_VEHICLE.equals(agent.getTypeName()) && isEmergencyOutOfBounds(agent)) {
-            world.removeAgent(agent);
+        if (AgentTypes.EMERGENCY_VEHICLE.equals(agent.getTypeName())) {
+            if (isEmergencyOutOfBounds(agent)) {
+                world.removeAgent(agent);
+            }
             return;
         }
         keepAgentInBounds(agent);
@@ -200,15 +202,12 @@ public class DowntownIntersectionLayout implements MapLayout {
 
     public double getEmergencySpeedMultiplier(Agent agent, World world) {
         if (!isEmergencyPreemptionActive(world)) {
-            return 0.98;
+            return 1.0;
         }
         if (isIntersectionOccupied(world, agent)) {
-            return 0.22;
+            return 0.7;
         }
-        if (distanceToCenter(agent) < 110) {
-            return 0.58;
-        }
-        return 0.88;
+        return 1.3;
     }
 
     public double getVehicleSpeedMultiplier(Agent agent, long tickCount) {
