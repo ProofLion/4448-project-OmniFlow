@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import model.Agent;
 import model.AgentFactory;
+import model.AgentTypes;
 import model.MapLayout;
 import model.layouts.DowntownIntersectionLayout;
 import model.layouts.SchoolZoneLayout;
@@ -25,8 +26,8 @@ class LayoutStoreTest {
             Camera2D camera = new Camera2D();
             camera.setState(-10.5, 45.25, 2.2);
 
-            Agent first = AgentFactory.defaultFactory().createWithId("Car", 310, new Vec2(1, 2), new Vec2(3, 4));
-            Agent second = AgentFactory.defaultFactory().createWithId("Bike", 311, new Vec2(-5, 6), new Vec2(7, 0));
+            Agent first = AgentFactory.defaultFactory().createWithId(AgentTypes.CAR, 310, new Vec2(1, 2), new Vec2(3, 4));
+            Agent second = AgentFactory.defaultFactory().createWithId(AgentTypes.BIKE, 311, new Vec2(-5, 6), new Vec2(7, 0));
 
             LayoutStore.save(tempFile, "School Zone", camera, java.util.List.of(first, second));
 
@@ -41,9 +42,9 @@ class LayoutStoreTest {
             assertEquals(45.25, loaded.cameraY(), 0.0001);
             assertEquals(2.2, loaded.zoom(), 0.0001);
             assertEquals(2, loaded.agents().size());
-            assertEquals("Car", loaded.agents().get(0).getTypeName());
+            assertEquals(AgentTypes.CAR, loaded.agents().get(0).getTypeName());
             assertEquals(310, loaded.agents().get(0).getId());
-            assertEquals("Bike", loaded.agents().get(1).getTypeName());
+            assertEquals(AgentTypes.BIKE, loaded.agents().get(1).getTypeName());
             assertEquals(311, loaded.agents().get(1).getId());
         } finally {
             Files.deleteIfExists(tempFile);

@@ -14,9 +14,9 @@ class AgentFactoryTest {
     @Test
     void createKnownTypeReturnsRequestedAgentKind() {
         AgentProvider provider = AgentFactory.defaultFactory();
-        Agent agent = provider.create("Bike", new Vec2(0, 0), new Vec2(20, 0));
+        Agent agent = provider.create(AgentTypes.BIKE, new Vec2(0, 0), new Vec2(20, 0));
 
-        assertEquals("Bike", agent.getTypeName());
+        assertEquals(AgentTypes.BIKE, agent.getTypeName());
         assertTrue(agent.getId() > 0);
     }
 
@@ -28,8 +28,8 @@ class AgentFactoryTest {
         world.setTickCount(0);
 
         List<Agent> agents = List.of(
-            provider.createWithId("Car", 200, new Vec2(0, 0), new Vec2(30, 0)),
-            provider.createWithId("Bike", 201, new Vec2(0, 0), new Vec2(30, 0))
+            provider.createWithId(AgentTypes.CAR, 200, new Vec2(0, 0), new Vec2(30, 0)),
+            provider.createWithId(AgentTypes.BIKE, 201, new Vec2(0, 0), new Vec2(30, 0))
         );
 
         for (Agent agent : agents) {
