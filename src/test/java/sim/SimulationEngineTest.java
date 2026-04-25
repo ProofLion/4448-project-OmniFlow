@@ -1,11 +1,13 @@
 package sim;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.Set;
 import javafx.scene.canvas.GraphicsContext;
 import model.Agent;
 import model.AgentFactory;
+import model.AgentTypes;
 import model.MapLayout;
 import model.layouts.DowntownIntersectionLayout;
 import org.junit.jupiter.api.Test;
@@ -27,7 +29,7 @@ class SimulationEngineTest {
         World world = new World(new DowntownIntersectionLayout());
         SimulationEngine engine = new SimulationEngine(world);
         world.clearAgents();
-        world.addAgent(AgentFactory.defaultFactory().createWithId("Car", 100, new Vec2(0, 0), new Vec2(30, 0)));
+        world.addAgent(AgentFactory.defaultFactory().createWithId(AgentTypes.CAR, 100, new Vec2(0, 0), new Vec2(30, 0)));
 
         engine.setUpdatingEnabledTypes(Set.of());
         engine.step();
@@ -41,9 +43,9 @@ class SimulationEngineTest {
         World world = new World(new DowntownIntersectionLayout());
         SimulationEngine engine = new SimulationEngine(world);
         world.clearAgents();
-        world.addAgent(AgentFactory.defaultFactory().createWithId("Car", 101, new Vec2(0, 0), new Vec2(30, 0)));
+        world.addAgent(AgentFactory.defaultFactory().createWithId(AgentTypes.CAR, 101, new Vec2(0, 0), new Vec2(30, 0)));
 
-        engine.setUpdatingEnabledTypes(Set.of("Car"));
+        engine.setUpdatingEnabledTypes(Set.of(AgentTypes.CAR));
         engine.step();
 
         assertEquals(1.0, world.getAgents().get(0).getPosition().x, 0.0001);
@@ -54,9 +56,9 @@ class SimulationEngineTest {
         World world = new World(new StopLightTestLayout());
         SimulationEngine engine = new SimulationEngine(world);
         world.clearAgents();
-        world.addAgent(AgentFactory.defaultFactory().createWithId("EmergencyVehicle", 103, new Vec2(0, 0), new Vec2(0, 30)));
+        world.addAgent(AgentFactory.defaultFactory().createWithId(AgentTypes.EMERGENCY_VEHICLE, 103, new Vec2(0, 0), new Vec2(0, 30)));
 
-        engine.setUpdatingEnabledTypes(Set.of("EmergencyVehicle"));
+        engine.setUpdatingEnabledTypes(Set.of(AgentTypes.EMERGENCY_VEHICLE));
         engine.step();
 
         assertEquals(1.25, world.getAgents().get(0).getPosition().y, 0.0001);
@@ -67,9 +69,9 @@ class SimulationEngineTest {
         World world = new World(new StopLightTestLayout());
         SimulationEngine engine = new SimulationEngine(world);
         world.clearAgents();
-        world.addAgent(AgentFactory.defaultFactory().createWithId("Car", 104, new Vec2(0, 0), new Vec2(0, 30)));
+        world.addAgent(AgentFactory.defaultFactory().createWithId(AgentTypes.CAR, 104, new Vec2(0, 0), new Vec2(0, 30)));
 
-        engine.setUpdatingEnabledTypes(Set.of("Car"));
+        engine.setUpdatingEnabledTypes(Set.of(AgentTypes.CAR));
         engine.step();
 
         assertEquals(0.0, world.getAgents().get(0).getPosition().y, 0.0001);
@@ -85,6 +87,41 @@ class SimulationEngineTest {
 
         engine.setSpeedMultiplier(0.01);
         assertEquals(0.25, engine.getSpeedMultiplier());
+    }
+
+    @Test
+    void randomDowntownSpawnsDoNotCreateEmergencyVehicles() {
+        World world = new World(new DowntownIntersectionLayout());
+        SimulationEngine engine = new SimulationEngine(world);
+        world.clearAgents();
+
+        engine.addRandomAgents(60);
+
+        assertFalse(world.getAgents().stream().anyMatch(agent -> AgentTypes.EMERGENCY_VEHICLE.equals(agent.getTypeName())));
+    }
+
+    @Test
+    void spawnEmergencyVehicleAddsOneEmergencyVehicle() {
+        World world = new World(new DowntownIntersectionLayout());
+        SimulationEngine engine = new SimulationEngine(world);
+        long before = world.getAgents().stream().filter(agent -> AgentTypes.EMERGENCY_VEHICLE.equals(agent.getTypeName())).count();
+
+        engine.spawnEmergencyVehicle();
+
+        long after = world.getAgents().stream().filter(agent -> AgentTypes.EMERGENCY_VEHICLE.equals(agent.getTypeName())).count();
+        assertEquals(before + 1, after);
+    }
+
+    @Test
+    void spawnEmergencyVehicleDoesNotAddSecondEmergencyWhileOneExists() {
+        World world = new World(new DowntownIntersectionLayout());
+        SimulationEngine engine = new SimulationEngine(world);
+
+        engine.spawnEmergencyVehicle();
+        engine.spawnEmergencyVehicle();
+
+        long count = world.getAgents().stream().filter(agent -> AgentTypes.EMERGENCY_VEHICLE.equals(agent.getTypeName())).count();
+        assertEquals(1, count);
     }
 
     @Test
@@ -107,7 +144,7 @@ class SimulationEngineTest {
             public void seed(World targetWorld) {
                 targetWorld.clearAgents();
                 targetWorld.addAgent(
-                    AgentFactory.defaultFactory().createWithId("Bike", 102, new Vec2(10, 10), new Vec2(20, 0))
+                    AgentFactory.defaultFactory().createWithId(AgentTypes.BIKE, 102, new Vec2(10, 10), new Vec2(20, 0))
                 );
             }
 
@@ -141,7 +178,7 @@ class SimulationEngineTest {
         assertEquals(0, engine.getTickCount());
         assertEquals("TestLayout", world.getLayout().getName());
         assertEquals(1, world.getAgents().size());
-        assertEquals("Bike", world.getAgents().get(0).getTypeName());
+        assertEquals(AgentTypes.BIKE, world.getAgents().get(0).getTypeName());
     }
 
     private static class StopLightTestLayout implements MapLayout {
